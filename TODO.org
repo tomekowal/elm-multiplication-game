@@ -1,0 +1,6 @@
+* Add score
+* Make first multiplication random
+* Reset field after succesfull answer
+* Visualize time
+* Add background music
+* Add sounds on success and keypress
