@@ -64,7 +64,8 @@ myInput userActionsMailboxAddress userInput =
             targetValue
             (\input -> Signal.message userActionsMailboxAddress (Input input))
         , type' "number"
-        , value userInput ] []
+        , value userInput
+        , autofocus True ] []
 
 -- address is a mailbox expecting Actions (Signal Action)
 -- button click sends Increment action
