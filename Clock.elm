@@ -7,11 +7,15 @@ import Random exposing (..)
 import Signal exposing (Signal, (<~))
     
 type Action = Tick Float | Increment | Input String
+type GameState = NotStarted | Running | Stopped
 type alias Multiplication = (Int, Int)
 type alias Model = { counter: Int
                    , input: String
                    , currentSeed: Random.Seed
-                   , multiplication: Multiplication }
+                   , multiplication: Multiplication
+                   , userInput: String
+                   , score: Int
+                   , gameState: GameState }
 
 -- main function emits Html over time (like in react)
 main : Signal Html
@@ -34,29 +38,33 @@ modelUpdatesToView userActionsMailboxAddress modelUpdates =
 
 initialModel : Model
 initialModel =
-  { counter = 100
+  { counter = 10
     -- fst (generate (int 0 10) (initialSeed 1))
     , input = "We need more time"
     , currentSeed = initialSeed 0
-    , multiplication = (10, 5) }
+    , multiplication = (10, 5)
+    , userInput = ""
+    , score = 0
+    , gameState = Running }
   
 -- all user inputs need to go to mailbox expecting Action
 -- view takes mailbox and model and turns into html
 view : Signal.Address Action -> Model -> Html
 view userActionsMailboxAddress model =
-  div [] [div [] [text (toString model.counter)]
+  div [] [div [] [text ("Pozostały czas: " ++ (toString model.counter))]
+         , div [] [text ("Twój wynik: " ++ (toString model.score))]
          , div [] [text (stringFromMultiplication model.multiplication)]
-         , div [] [myButton userActionsMailboxAddress model.input]
-         , div [] [myInput userActionsMailboxAddress]]
+         , div [] [myInput userActionsMailboxAddress model.userInput]]
 
 -- address is a mailbox expecting Actions (Signal Action)
 -- currently it does nothing
-myInput : Signal.Address Action -> Html
-myInput userActionsMailboxAddress =
+myInput : Signal.Address Action -> String -> Html
+myInput userActionsMailboxAddress userInput =
   input [on "input"
             targetValue
             (\input -> Signal.message userActionsMailboxAddress (Input input))
-        , type' "number" ] []
+        , type' "number"
+        , value userInput ] []
 
 -- address is a mailbox expecting Actions (Signal Action)
 -- button click sends Increment action
@@ -64,9 +72,18 @@ myButton : Signal.Address Action -> String -> Html
 myButton userActionsMailboxAddress userInput =
   button [onClick userActionsMailboxAddress Increment] [text userInput]
 
--- update takes action and model and returns new model
-update : Action -> Model -> Model
+
+update: Action -> Model -> Model
 update action model =
+  case model.counter <= 0 of
+    False ->
+      updateRunning action model
+    True ->
+      model
+
+-- update takes action and model and returns new model
+updateRunning : Action -> Model -> Model
+updateRunning action model =
   case action of
     Tick timeStamp ->
       { model |
@@ -111,9 +128,11 @@ handleInput userInput model =
   case compareInputWithMultiplication model.multiplication userInput of
     True ->
       { model | counter <- model.counter + 1
-        , multiplication <- generateMultiplication model.currentSeed }
+        , multiplication <- generateMultiplication model.currentSeed
+        , score <- model.score + 1
+        , userInput <- "" }
     False ->
-      model
+      { model | userInput <- userInput }
 
 generateMultiplication : Random.Seed -> Multiplication
 generateMultiplication seed0 =                        
