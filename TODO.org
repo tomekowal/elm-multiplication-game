@@ -1,3 +1,4 @@
+* Prevent from guessing numbers
 * Read again tutorial about managing complexity in elm and devide core module
 * Add proper welcome screen and end of game screen
 * Make first multiplication random
