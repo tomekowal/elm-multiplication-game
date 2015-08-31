@@ -6,7 +6,7 @@ import Time exposing (..)
 import Random exposing (..)
 import Signal exposing (Signal, (<~))
     
-type Action = Tick Float | Increment | Input String
+type Action = Tick Float | Input String
 type GameState = NotStarted | Running | Stopped
 type alias Multiplication = (Int, Int)
 type alias Model = { counter: Int
@@ -51,10 +51,17 @@ initialModel =
 -- view takes mailbox and model and turns into html
 view : Signal.Address Action -> Model -> Html
 view userActionsMailboxAddress model =
-  div [] [div [] [text ("Pozostały czas: " ++ (toString model.counter))]
-         , div [] [text ("Twój wynik: " ++ (toString model.score))]
-         , div [] [text (stringFromMultiplication model.multiplication)]
-         , div [] [myInput userActionsMailboxAddress model.userInput]]
+  case model.gameState of
+    Running ->
+      div [] [ timeBar model.counter
+             , timer model.counter
+             , div [] [text ("Twój wynik: " ++ (toString model.score))]
+             , div [] [text (stringFromMultiplication model.multiplication)]
+             , div [] [myInput userActionsMailboxAddress model.userInput]]
+    Stopped ->
+      div [] [div [] [text ("Twój wynik: " ++ (toString model.score))]
+             , div [] [text (stringFromMultiplication model.multiplication)]
+             , div [] [text ("właściwa odpowiedź: " ++ toString (resultOfMultiplication model.multiplication))]]
 
 -- address is a mailbox expecting Actions (Signal Action)
 -- currently it does nothing
@@ -67,12 +74,16 @@ myInput userActionsMailboxAddress userInput =
         , value userInput
         , autofocus True ] []
 
--- address is a mailbox expecting Actions (Signal Action)
--- button click sends Increment action
-myButton : Signal.Address Action -> String -> Html
-myButton userActionsMailboxAddress userInput =
-  button [onClick userActionsMailboxAddress Increment] [text userInput]
 
+timeBar: Int -> Html
+timeBar timeLeft =
+  div [style [ ("background-color", "red")
+             , ("width", (toString (2*timeLeft)) ++ "%")
+             , ("height", "15px")]] []
+
+timer: Int -> Html
+timer timeLeft =
+  div [] [text ("Pozostały czas: " ++ (toString timeLeft))]
 
 update: Action -> Model -> Model
 update action model =
@@ -80,7 +91,7 @@ update action model =
     False ->
       updateRunning action model
     True ->
-      model
+      { model | gameState <- Stopped }
 
 -- update takes action and model and returns new model
 updateRunning : Action -> Model -> Model
@@ -90,8 +101,6 @@ updateRunning action model =
       { model |
                 counter <- model.counter - 1
               , currentSeed <- initialSeed (round timeStamp) } 
-    Increment ->
-      { model | counter <- model.counter + 1 } 
     Input string ->
       handleInput string model
 
