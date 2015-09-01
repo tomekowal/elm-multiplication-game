@@ -19,15 +19,15 @@ main =
     -- creating mailbox, that will passed to view
     userActionsMailbox = Signal.mailbox (Action.Tick 0)
     -- create signal of model updates
-    modelUpdates = 
+    modelUpdates =
       Signal.foldp update initialModel (actions userActionsMailbox.signal)
   in
     modelUpdatesToView userActionsMailbox.address modelUpdates
-    
+
 -- takes mailbox needed by view, signal of models and returns html
 -- basically the same as view, but takes signal of models instead of one model
 modelUpdatesToView : Signal.Address Action.Action -> Signal Model.Model -> Signal Html
-modelUpdatesToView userActionsMailboxAddress modelUpdates =                     
+modelUpdatesToView userActionsMailboxAddress modelUpdates =
   Signal.map (UI.view userActionsMailboxAddress) modelUpdates
 
 initialModel : Model.Model
@@ -38,8 +38,7 @@ initialModel =
     , multiplication = (10, 5)
     , userInput = ""
     , score = 0
-    , gameState = Model.Running }
-  
+    , gameState = Model.NotStarted }
 
 update: Action.Action -> Model.Model -> Model.Model
 update action model =
@@ -56,7 +55,7 @@ updateRunning action model =
     Action.Tick timeStamp ->
       { model |
                 counter <- model.counter - 1
-              , currentSeed <- initialSeed (round timeStamp) } 
+              , currentSeed <- initialSeed (round timeStamp) }
     Action.Input string ->
       handleInput string model
 
@@ -71,7 +70,7 @@ ticks =
   Signal.map (\(timeStamp, tick) -> Action.Tick timeStamp) (timestamp (every second))
 
 compareInputWithMultiplication : Model.Multiplication -> String -> Bool
-compareInputWithMultiplication multipliction userInput = 
+compareInputWithMultiplication multipliction userInput =
   case String.toInt userInput of
     Ok integer ->
       integer == UI.resultOfMultiplication multipliction
@@ -86,7 +85,7 @@ handleInput userInput model =
         (multiplication, newSeed) = generateMultiplication model.currentSeed
       in
         { model | counter <- model.counter + 1
-          , multiplication <- multiplication 
+          , multiplication <- multiplication
           , score <- model.score + 1
           , userInput <- ""
           , currentSeed <- newSeed }
@@ -94,9 +93,9 @@ handleInput userInput model =
       { model | userInput <- userInput }
 
 generateMultiplication : Random.Seed -> (Model.Multiplication, Random.Seed)
-generateMultiplication seed0 =                        
+generateMultiplication seed0 =
   let
     (first, seed1) = generate (int 0 10) seed0
-    (second, seed2) = generate (int 0 10) seed1 
+    (second, seed2) = generate (int 0 10) seed1
   in
     ((first, second), seed2)
