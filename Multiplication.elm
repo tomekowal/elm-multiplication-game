@@ -8,7 +8,7 @@ import Time exposing (..)
 import Random exposing (..)
 import Signal exposing (Signal, (<~))
 import Action
-
+import UI
 
 type GameState = NotStarted | Running | Stopped
 type alias Multiplication = (Int, Int)
@@ -55,37 +55,15 @@ view : Signal.Address Action.Action -> Model -> Html
 view userActionsMailboxAddress model =
   case model.gameState of
     Running ->
-      div [] [ timeBar model.counter
-             , timer model.counter
+      div [] [ UI.timeBar model.counter
+             , UI.timer model.counter
              , div [] [text ("Twój wynik: " ++ (toString model.score))]
              , div [] [text (stringFromMultiplication model.multiplication)]
-             , div [] [myInput userActionsMailboxAddress model.userInput]]
+             , div [] [UI.myInput userActionsMailboxAddress model.userInput]]
     Stopped ->
       div [] [div [] [text ("Twój wynik: " ++ (toString model.score))]
              , div [] [text (stringFromMultiplication model.multiplication)]
              , div [] [text ("właściwa odpowiedź: " ++ toString (resultOfMultiplication model.multiplication))]]
-
--- address is a mailbox expecting Actions (Signal Action)
--- currently it does nothing
-myInput : Signal.Address Action.Action -> String -> Html
-myInput userActionsMailboxAddress userInput =
-  input [on "input"
-            targetValue
-            (\input -> Signal.message userActionsMailboxAddress (Action.Input input))
-        , type' "number"
-        , value userInput
-        , autofocus True ] []
-
-
-timeBar: Int -> Html
-timeBar timeLeft =
-  div [style [ ("background-color", "red")
-             , ("width", (toString (2*timeLeft)) ++ "%")
-             , ("height", "15px")]] []
-
-timer: Int -> Html
-timer timeLeft =
-  div [] [text ("Pozostały czas: " ++ (toString timeLeft))]
 
 update: Action.Action -> Model -> Model
 update action model =
@@ -139,17 +117,21 @@ handleInput : String -> Model -> Model
 handleInput userInput model =
   case compareInputWithMultiplication model.multiplication userInput of
     True ->
-      { model | counter <- model.counter + 1
-        , multiplication <- generateMultiplication model.currentSeed
-        , score <- model.score + 1
-        , userInput <- "" }
+      let
+        (multiplication, newSeed) = generateMultiplication model.currentSeed
+      in
+        { model | counter <- model.counter + 1
+          , multiplication <- multiplication 
+          , score <- model.score + 1
+          , userInput <- ""
+          , currentSeed <- newSeed }
     False ->
       { model | userInput <- userInput }
 
-generateMultiplication : Random.Seed -> Multiplication
+generateMultiplication : Random.Seed -> (Multiplication, Random.Seed)
 generateMultiplication seed0 =                        
   let
     (first, seed1) = generate (int 0 10) seed0
     (second, seed2) = generate (int 0 10) seed1 
   in
-    (first, second)
+    ((first, second), seed2)
