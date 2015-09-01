@@ -74,7 +74,7 @@ compareInputWithMultiplication : Model.Multiplication -> String -> Bool
 compareInputWithMultiplication multipliction userInput = 
   case String.toInt userInput of
     Ok integer ->
-      integer == resultOfMultiplication multipliction
+      integer == UI.resultOfMultiplication multipliction
     Err reason ->
       False
 
