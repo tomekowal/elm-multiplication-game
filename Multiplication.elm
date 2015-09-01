@@ -28,7 +28,7 @@ main =
 -- basically the same as view, but takes signal of models instead of one model
 modelUpdatesToView : Signal.Address Action.Action -> Signal Model.Model -> Signal Html
 modelUpdatesToView userActionsMailboxAddress modelUpdates =                     
-  Signal.map (view userActionsMailboxAddress) modelUpdates
+  Signal.map (UI.view userActionsMailboxAddress) modelUpdates
 
 initialModel : Model.Model
 initialModel =
@@ -40,21 +40,6 @@ initialModel =
     , score = 0
     , gameState = Model.Running }
   
--- all user inputs need to go to mailbox expecting Action
--- view takes mailbox and model and turns into html
-view : Signal.Address Action.Action -> Model.Model -> Html
-view userActionsMailboxAddress model =
-  case model.gameState of
-    Model.Running ->
-      div [] [ UI.timeBar model.counter
-             , UI.timer model.counter
-             , div [] [text ("Twój wynik: " ++ (toString model.score))]
-             , div [] [text (stringFromMultiplication model.multiplication)]
-             , div [] [UI.myInput userActionsMailboxAddress model.userInput]]
-    Model.Stopped ->
-      div [] [div [] [text ("Twój wynik: " ++ (toString model.score))]
-             , div [] [text (stringFromMultiplication model.multiplication)]
-             , div [] [text ("właściwa odpowiedź: " ++ toString (resultOfMultiplication model.multiplication))]]
 
 update: Action.Action -> Model.Model -> Model.Model
 update action model =
@@ -84,17 +69,6 @@ actions userActions =
 ticks : Signal Action.Action
 ticks =
   Signal.map (\(timeStamp, tick) -> Action.Tick timeStamp) (timestamp (every second))
-
--- seed : Signal Random.Seed
--- seed = (\ (t, _) -> Random.initialSeed <| round t) <~ Time.timestamp (Signal.constant ())
-
-stringFromMultiplication : Model.Multiplication -> String
-stringFromMultiplication multiplication =
-  toString (fst multiplication) ++ "x" ++ toString (snd multiplication)
-
-resultOfMultiplication : Model.Multiplication -> Int
-resultOfMultiplication multiplication =                      
-  (fst multiplication) * (snd multiplication)
 
 compareInputWithMultiplication : Model.Multiplication -> String -> Bool
 compareInputWithMultiplication multipliction userInput = 
