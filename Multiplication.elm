@@ -9,16 +9,7 @@ import Random exposing (..)
 import Signal exposing (Signal, (<~))
 import Action
 import UI
-
-type GameState = NotStarted | Running | Stopped
-type alias Multiplication = (Int, Int)
-type alias Model = { counter: Int
-                   , input: String
-                   , currentSeed: Random.Seed
-                   , multiplication: Multiplication
-                   , userInput: String
-                   , score: Int
-                   , gameState: GameState }
+import Model
 
 -- main function emits Html over time (like in react)
 main : Signal Html
@@ -35,11 +26,11 @@ main =
     
 -- takes mailbox needed by view, signal of models and returns html
 -- basically the same as view, but takes signal of models instead of one model
-modelUpdatesToView : Signal.Address Action.Action -> Signal Model -> Signal Html
+modelUpdatesToView : Signal.Address Action.Action -> Signal Model.Model -> Signal Html
 modelUpdatesToView userActionsMailboxAddress modelUpdates =                     
   Signal.map (view userActionsMailboxAddress) modelUpdates
 
-initialModel : Model
+initialModel : Model.Model
 initialModel =
   { counter = 10
     , input = "We need more time"
@@ -47,34 +38,34 @@ initialModel =
     , multiplication = (10, 5)
     , userInput = ""
     , score = 0
-    , gameState = Running }
+    , gameState = Model.Running }
   
 -- all user inputs need to go to mailbox expecting Action
 -- view takes mailbox and model and turns into html
-view : Signal.Address Action.Action -> Model -> Html
+view : Signal.Address Action.Action -> Model.Model -> Html
 view userActionsMailboxAddress model =
   case model.gameState of
-    Running ->
+    Model.Running ->
       div [] [ UI.timeBar model.counter
              , UI.timer model.counter
              , div [] [text ("Twój wynik: " ++ (toString model.score))]
              , div [] [text (stringFromMultiplication model.multiplication)]
              , div [] [UI.myInput userActionsMailboxAddress model.userInput]]
-    Stopped ->
+    Model.Stopped ->
       div [] [div [] [text ("Twój wynik: " ++ (toString model.score))]
              , div [] [text (stringFromMultiplication model.multiplication)]
              , div [] [text ("właściwa odpowiedź: " ++ toString (resultOfMultiplication model.multiplication))]]
 
-update: Action.Action -> Model -> Model
+update: Action.Action -> Model.Model -> Model.Model
 update action model =
   case model.counter <= 0 of
     False ->
       updateRunning action model
     True ->
-      { model | gameState <- Stopped }
+      { model | gameState <- Model.Stopped }
 
 -- update takes action and model and returns new model
-updateRunning : Action.Action -> Model -> Model
+updateRunning : Action.Action -> Model.Model -> Model.Model
 updateRunning action model =
   case action of
     Action.Tick timeStamp ->
@@ -97,15 +88,15 @@ ticks =
 -- seed : Signal Random.Seed
 -- seed = (\ (t, _) -> Random.initialSeed <| round t) <~ Time.timestamp (Signal.constant ())
 
-stringFromMultiplication : Multiplication -> String
+stringFromMultiplication : Model.Multiplication -> String
 stringFromMultiplication multiplication =
   toString (fst multiplication) ++ "x" ++ toString (snd multiplication)
 
-resultOfMultiplication : Multiplication -> Int
+resultOfMultiplication : Model.Multiplication -> Int
 resultOfMultiplication multiplication =                      
   (fst multiplication) * (snd multiplication)
 
-compareInputWithMultiplication : Multiplication -> String -> Bool
+compareInputWithMultiplication : Model.Multiplication -> String -> Bool
 compareInputWithMultiplication multipliction userInput = 
   case String.toInt userInput of
     Ok integer ->
@@ -113,7 +104,7 @@ compareInputWithMultiplication multipliction userInput =
     Err reason ->
       False
 
-handleInput : String -> Model -> Model
+handleInput : String -> Model.Model -> Model.Model
 handleInput userInput model =
   case compareInputWithMultiplication model.multiplication userInput of
     True ->
@@ -128,7 +119,7 @@ handleInput userInput model =
     False ->
       { model | userInput <- userInput }
 
-generateMultiplication : Random.Seed -> (Multiplication, Random.Seed)
+generateMultiplication : Random.Seed -> (Model.Multiplication, Random.Seed)
 generateMultiplication seed0 =                        
   let
     (first, seed1) = generate (int 0 10) seed0
