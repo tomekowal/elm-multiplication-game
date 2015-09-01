@@ -1,3 +1,5 @@
+module Multiplication where
+
 import String
 import Html exposing (div, button, input, text, Html)
 import Html.Events exposing (..)
@@ -5,8 +7,9 @@ import Html.Attributes exposing (..)
 import Time exposing (..)
 import Random exposing (..)
 import Signal exposing (Signal, (<~))
-    
-type Action = Tick Float | Input String
+import Action
+
+
 type GameState = NotStarted | Running | Stopped
 type alias Multiplication = (Int, Int)
 type alias Model = { counter: Int
@@ -23,7 +26,7 @@ main =
   let
     -- the only place, where I can do something with side effects
     -- creating mailbox, that will passed to view
-    userActionsMailbox = Signal.mailbox (Tick 0)
+    userActionsMailbox = Signal.mailbox (Action.Tick 0)
     -- create signal of model updates
     modelUpdates = 
       Signal.foldp update initialModel (actions userActionsMailbox.signal)
@@ -32,14 +35,13 @@ main =
     
 -- takes mailbox needed by view, signal of models and returns html
 -- basically the same as view, but takes signal of models instead of one model
-modelUpdatesToView : Signal.Address Action -> Signal Model -> Signal Html
+modelUpdatesToView : Signal.Address Action.Action -> Signal Model -> Signal Html
 modelUpdatesToView userActionsMailboxAddress modelUpdates =                     
   Signal.map (view userActionsMailboxAddress) modelUpdates
 
 initialModel : Model
 initialModel =
   { counter = 10
-    -- fst (generate (int 0 10) (initialSeed 1))
     , input = "We need more time"
     , currentSeed = initialSeed 0
     , multiplication = (10, 5)
@@ -49,7 +51,7 @@ initialModel =
   
 -- all user inputs need to go to mailbox expecting Action
 -- view takes mailbox and model and turns into html
-view : Signal.Address Action -> Model -> Html
+view : Signal.Address Action.Action -> Model -> Html
 view userActionsMailboxAddress model =
   case model.gameState of
     Running ->
@@ -65,11 +67,11 @@ view userActionsMailboxAddress model =
 
 -- address is a mailbox expecting Actions (Signal Action)
 -- currently it does nothing
-myInput : Signal.Address Action -> String -> Html
+myInput : Signal.Address Action.Action -> String -> Html
 myInput userActionsMailboxAddress userInput =
   input [on "input"
             targetValue
-            (\input -> Signal.message userActionsMailboxAddress (Input input))
+            (\input -> Signal.message userActionsMailboxAddress (Action.Input input))
         , type' "number"
         , value userInput
         , autofocus True ] []
@@ -85,7 +87,7 @@ timer: Int -> Html
 timer timeLeft =
   div [] [text ("Pozostały czas: " ++ (toString timeLeft))]
 
-update: Action -> Model -> Model
+update: Action.Action -> Model -> Model
 update action model =
   case model.counter <= 0 of
     False ->
@@ -94,25 +96,25 @@ update action model =
       { model | gameState <- Stopped }
 
 -- update takes action and model and returns new model
-updateRunning : Action -> Model -> Model
+updateRunning : Action.Action -> Model -> Model
 updateRunning action model =
   case action of
-    Tick timeStamp ->
+    Action.Tick timeStamp ->
       { model |
                 counter <- model.counter - 1
               , currentSeed <- initialSeed (round timeStamp) } 
-    Input string ->
+    Action.Input string ->
       handleInput string model
 
 -- merges user actions and ticks
-actions : Signal Action -> Signal Action
+actions : Signal Action.Action -> Signal Action.Action
 actions userActions =
   Signal.merge ticks userActions
 
 -- creates signal of ticks
-ticks : Signal Action
+ticks : Signal Action.Action
 ticks =
-  Signal.map (\(timeStamp, tick) -> Tick timeStamp) (timestamp (every second))
+  Signal.map (\(timeStamp, tick) -> Action.Tick timeStamp) (timestamp (every second))
 
 -- seed : Signal Random.Seed
 -- seed = (\ (t, _) -> Random.initialSeed <| round t) <~ Time.timestamp (Signal.constant ())
