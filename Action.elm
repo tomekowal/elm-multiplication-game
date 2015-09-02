@@ -1,3 +1,3 @@
 module Action where
 
-type Action = Tick Float | Input String
+type Action = Tick Float | Input String | Reset

@@ -21,8 +21,8 @@ view userActionsMailboxAddress model =
 
 viewNotStarted : Signal.Address Action.Action -> Model.Model -> Html
 viewNotStarted userActionsMailboxAddress model =
-  div [] [ text "Witaj, masz 10 sekund, żeby odpowiedzieć na jak najwięcej pytań z tabliczki mnożenia!"
-         , text "Wpisz wynik mnożenia, aby rozpocząć"
+  div [] [ timeBar model.counter
+         , div [] [text "Wpisz wynik mnożenia, aby rozpocząć"]
          , div [] [text (stringFromMultiplication model.multiplication)]
          , div [] [myInput userActionsMailboxAddress model.userInput]]
 
@@ -36,9 +36,16 @@ viewRunning userActionsMailboxAddress model =
 
 viewStopped : Signal.Address Action.Action -> Model.Model -> Html
 viewStopped userActionsMailboxAddress model =
-      div [] [div [] [text ("Twój wynik: " ++ (toString model.score))]
+      div [] [ timeBar model.counter
+             , div [] [text ("Twój wynik: " ++ (toString model.score))]
              , div [] [text (stringFromMultiplication model.multiplication)]
-             , div [] [text ("właściwa odpowiedź: " ++ toString (resultOfMultiplication model.multiplication))]]
+             , div [] [myInput userActionsMailboxAddress model.userInput]
+             , div [] [text ("właściwa odpowiedź: " ++ toString (resultOfMultiplication model.multiplication))]
+             , resetButton userActionsMailboxAddress]
+
+resetButton : Signal.Address Action.Action -> Html
+resetButton userActionsMailboxAddress =
+  button [onClick userActionsMailboxAddress Action.Reset] [text "Reset"]
 
 -- address is a mailbox expecting Actions (Signal Action)
 -- currently it does nothing
