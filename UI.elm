@@ -21,7 +21,10 @@ view userActionsMailboxAddress model =
 
 viewNotStarted : Signal.Address Action.Action -> Model.Model -> Html
 viewNotStarted userActionsMailboxAddress model =
-  div [] [ text "Witaj, stary!" ]
+  div [] [ text "Witaj, masz 10 sekund, żeby odpowiedzieć na jak najwięcej pytań z tabliczki mnożenia!"
+         , text "Wpisz wynik mnożenia, aby rozpocząć"
+         , div [] [text (stringFromMultiplication model.multiplication)]
+         , div [] [myInput userActionsMailboxAddress model.userInput]]
 
 viewRunning : Signal.Address Action.Action -> Model.Model -> Html
 viewRunning userActionsMailboxAddress model =
@@ -46,7 +49,8 @@ myInput userActionsMailboxAddress userInput =
             (\input -> Signal.message userActionsMailboxAddress (Action.Input input))
         , type' "number"
         , value userInput
-        , autofocus True ] []
+        , autofocus True
+        , id "input" ] []
 
 timeBar: Int -> Html
 timeBar timeLeft =

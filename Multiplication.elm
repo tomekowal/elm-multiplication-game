@@ -14,15 +14,14 @@ import Model
 -- main function emits Html over time (like in react)
 main : Signal Html
 main =
-  let
-    -- the only place, where I can do something with side effects
-    -- creating mailbox, that will passed to view
-    userActionsMailbox = Signal.mailbox (Action.Tick 0)
-    -- create signal of model updates
-    modelUpdates =
-      Signal.foldp update initialModel (actions userActionsMailbox.signal)
-  in
-    modelUpdatesToView userActionsMailbox.address modelUpdates
+  modelUpdatesToView userActionsMailbox.address modelUpdates
+
+userActionsMailbox : Signal.Mailbox Action.Action
+userActionsMailbox = Signal.mailbox (Action.Tick 0)
+
+modelUpdates : Signal Model.Model
+modelUpdates =
+  Signal.foldp update initialModel (actions userActionsMailbox.signal)
 
 -- takes mailbox needed by view, signal of models and returns html
 -- basically the same as view, but takes signal of models instead of one model
@@ -42,15 +41,39 @@ initialModel =
 
 update: Action.Action -> Model.Model -> Model.Model
 update action model =
+  case model.gameState of
+    Model.NotStarted ->
+      updateNotStarted action model
+    Model.Running ->
+      updateRunning action model
+    Model.Stopped ->
+      updateStopped action model
+
+updateNotStarted : Action.Action -> Model.Model -> Model.Model
+updateNotStarted action model =
+  case action of
+    Action.Input string ->
+      handleInput string model
+    Action.Tick timeStamp ->
+      { model | currentSeed <- initialSeed (round timeStamp) }
+    anything ->
+      model
+
+updateStopped : Action.Action -> Model.Model -> Model.Model
+updateStopped action model =
+  model
+
+updateRunning : Action.Action -> Model.Model -> Model.Model
+updateRunning action model =
   case model.counter <= 0 of
     False ->
-      updateRunning action model
+      updateGame action model
     True ->
       { model | gameState <- Model.Stopped }
 
 -- update takes action and model and returns new model
-updateRunning : Action.Action -> Model.Model -> Model.Model
-updateRunning action model =
+updateGame : Action.Action -> Model.Model -> Model.Model
+updateGame action model =
   case action of
     Action.Tick timeStamp ->
       { model |
@@ -88,7 +111,8 @@ handleInput userInput model =
           , multiplication <- multiplication
           , score <- model.score + 1
           , userInput <- ""
-          , currentSeed <- newSeed }
+          , currentSeed <- newSeed
+          , gameState <- Model.Running }
     False ->
       { model | userInput <- userInput }
 
@@ -99,3 +123,11 @@ generateMultiplication seed0 =
     (second, seed2) = generate (int 0 10) seed1
   in
     ((first, second), seed2)
+
+port focusElement : Signal String
+port focusElement =
+  modelToInputId <~ modelUpdates
+
+modelToInputId : Model.Model -> String
+modelToInputId model =
+  "input"
