@@ -1,4 +1,31 @@
 var Elm = Elm || { Native: {} };
+Elm.Action = Elm.Action || {};
+Elm.Action.make = function (_elm) {
+   "use strict";
+   _elm.Action = _elm.Action || {};
+   if (_elm.Action.values)
+   return _elm.Action.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "Action",
+   $Basics = Elm.Basics.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var Input = function (a) {
+      return {ctor: "Input",_0: a};
+   };
+   var Tick = function (a) {
+      return {ctor: "Tick",_0: a};
+   };
+   _elm.Action.values = {_op: _op
+                        ,Tick: Tick
+                        ,Input: Input};
+   return _elm.Action.values;
+};
 Elm.Array = Elm.Array || {};
 Elm.Array.make = function (_elm) {
    "use strict";
@@ -4145,300 +4172,6 @@ Elm.List.make = function (_elm) {
                       ,sortWith: sortWith};
    return _elm.List.values;
 };
-Elm.Main = Elm.Main || {};
-Elm.Main.make = function (_elm) {
-   "use strict";
-   _elm.Main = _elm.Main || {};
-   if (_elm.Main.values)
-   return _elm.Main.values;
-   var _op = {},
-   _N = Elm.Native,
-   _U = _N.Utils.make(_elm),
-   _L = _N.List.make(_elm),
-   $moduleName = "Main",
-   $Basics = Elm.Basics.make(_elm),
-   $Html = Elm.Html.make(_elm),
-   $Html$Attributes = Elm.Html.Attributes.make(_elm),
-   $Html$Events = Elm.Html.Events.make(_elm),
-   $List = Elm.List.make(_elm),
-   $Maybe = Elm.Maybe.make(_elm),
-   $Random = Elm.Random.make(_elm),
-   $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm),
-   $String = Elm.String.make(_elm),
-   $Time = Elm.Time.make(_elm);
-   var generateMultiplication = function (seed0) {
-      return function () {
-         var $ = A2($Random.generate,
-         A2($Random.$int,0,10),
-         seed0),
-         first = $._0,
-         seed1 = $._1;
-         var $ = A2($Random.generate,
-         A2($Random.$int,0,10),
-         seed1),
-         second = $._0,
-         seed2 = $._1;
-         return {ctor: "_Tuple2"
-                ,_0: first
-                ,_1: second};
-      }();
-   };
-   var resultOfMultiplication = function (multiplication) {
-      return $Basics.fst(multiplication) * $Basics.snd(multiplication);
-   };
-   var compareInputWithMultiplication = F2(function (multipliction,
-   userInput) {
-      return function () {
-         var _v0 = $String.toInt(userInput);
-         switch (_v0.ctor)
-         {case "Err": return false;
-            case "Ok": return _U.eq(_v0._0,
-              resultOfMultiplication(multipliction));}
-         _U.badCase($moduleName,
-         "between lines 127 and 131");
-      }();
-   });
-   var handleInput = F2(function (userInput,
-   model) {
-      return function () {
-         var _v3 = A2(compareInputWithMultiplication,
-         model.multiplication,
-         userInput);
-         switch (_v3)
-         {case false:
-            return _U.replace([["userInput"
-                               ,userInput]],
-              model);
-            case true:
-            return _U.replace([["counter"
-                               ,model.counter + 1]
-                              ,["multiplication"
-                               ,generateMultiplication(model.currentSeed)]
-                              ,["score",model.score + 1]
-                              ,["userInput",""]],
-              model);}
-         _U.badCase($moduleName,
-         "between lines 135 and 142");
-      }();
-   });
-   var stringFromMultiplication = function (multiplication) {
-      return A2($Basics._op["++"],
-      $Basics.toString($Basics.fst(multiplication)),
-      A2($Basics._op["++"],
-      "x",
-      $Basics.toString($Basics.snd(multiplication))));
-   };
-   var updateRunning = F2(function (action,
-   model) {
-      return function () {
-         switch (action.ctor)
-         {case "Increment":
-            return _U.replace([["counter"
-                               ,model.counter + 1]],
-              model);
-            case "Input":
-            return A2(handleInput,
-              action._0,
-              model);
-            case "Tick":
-            return _U.replace([["counter"
-                               ,model.counter - 1]
-                              ,["currentSeed"
-                               ,$Random.initialSeed($Basics.round(action._0))]],
-              model);}
-         _U.badCase($moduleName,
-         "between lines 94 and 102");
-      }();
-   });
-   var Model = F7(function (a,
-   b,
-   c,
-   d,
-   e,
-   f,
-   g) {
-      return {_: {}
-             ,counter: a
-             ,currentSeed: c
-             ,gameState: g
-             ,input: b
-             ,multiplication: d
-             ,score: f
-             ,userInput: e};
-   });
-   var Stopped = {ctor: "Stopped"};
-   var update = F2(function (action,
-   model) {
-      return function () {
-         var _v7 = _U.cmp(model.counter,
-         0) < 1;
-         switch (_v7)
-         {case false:
-            return A2(updateRunning,
-              action,
-              model);
-            case true:
-            return _U.replace([["gameState"
-                               ,Stopped]],
-              model);}
-         _U.badCase($moduleName,
-         "between lines 85 and 89");
-      }();
-   });
-   var Running = {ctor: "Running"};
-   var initialModel = {_: {}
-                      ,counter: 10
-                      ,currentSeed: $Random.initialSeed(0)
-                      ,gameState: Running
-                      ,input: "We need more time"
-                      ,multiplication: {ctor: "_Tuple2"
-                                       ,_0: 10
-                                       ,_1: 5}
-                      ,score: 0
-                      ,userInput: ""};
-   var NotStarted = {ctor: "NotStarted"};
-   var Input = function (a) {
-      return {ctor: "Input",_0: a};
-   };
-   var myInput = F2(function (userActionsMailboxAddress,
-   userInput) {
-      return A2($Html.input,
-      _L.fromArray([A3($Html$Events.on,
-                   "input",
-                   $Html$Events.targetValue,
-                   function (input) {
-                      return A2($Signal.message,
-                      userActionsMailboxAddress,
-                      Input(input));
-                   })
-                   ,$Html$Attributes.type$("number")
-                   ,$Html$Attributes.value(userInput)
-                   ,$Html$Attributes.autofocus(true)]),
-      _L.fromArray([]));
-   });
-   var view = F2(function (userActionsMailboxAddress,
-   model) {
-      return function () {
-         var _v8 = model.gameState;
-         switch (_v8.ctor)
-         {case "Running":
-            return A2($Html.div,
-              _L.fromArray([]),
-              _L.fromArray([A2($Html.div,
-                           _L.fromArray([$Html$Attributes.style(_L.fromArray([{ctor: "_Tuple2"
-                                                                              ,_0: "background-color"
-                                                                              ,_1: "red"}
-                                                                             ,{ctor: "_Tuple2"
-                                                                              ,_0: "width"
-                                                                              ,_1: A2($Basics._op["++"],
-                                                                              $Basics.toString(2 * model.counter),
-                                                                              "%")}]))]),
-                           _L.fromArray([$Html.text(A2($Basics._op["++"],
-                           "Pozostały czas: ",
-                           $Basics.toString(model.counter)))]))
-                           ,A2($Html.div,
-                           _L.fromArray([]),
-                           _L.fromArray([$Html.text(A2($Basics._op["++"],
-                           "Twój wynik: ",
-                           $Basics.toString(model.score)))]))
-                           ,A2($Html.div,
-                           _L.fromArray([]),
-                           _L.fromArray([$Html.text(stringFromMultiplication(model.multiplication))]))
-                           ,A2($Html.div,
-                           _L.fromArray([]),
-                           _L.fromArray([A2(myInput,
-                           userActionsMailboxAddress,
-                           model.userInput)]))]));
-            case "Stopped":
-            return A2($Html.div,
-              _L.fromArray([]),
-              _L.fromArray([A2($Html.div,
-                           _L.fromArray([]),
-                           _L.fromArray([$Html.text(A2($Basics._op["++"],
-                           "Twój wynik: ",
-                           $Basics.toString(model.score)))]))
-                           ,A2($Html.div,
-                           _L.fromArray([]),
-                           _L.fromArray([$Html.text(stringFromMultiplication(model.multiplication))]))
-                           ,A2($Html.div,
-                           _L.fromArray([]),
-                           _L.fromArray([$Html.text(A2($Basics._op["++"],
-                           "właściwa odpowiedź: ",
-                           $Basics.toString(resultOfMultiplication(model.multiplication))))]))]));}
-         _U.badCase($moduleName,
-         "between lines 54 and 63");
-      }();
-   });
-   var modelUpdatesToView = F2(function (userActionsMailboxAddress,
-   modelUpdates) {
-      return A2($Signal.map,
-      view(userActionsMailboxAddress),
-      modelUpdates);
-   });
-   var Increment = {ctor: "Increment"};
-   var myButton = F2(function (userActionsMailboxAddress,
-   userInput) {
-      return A2($Html.button,
-      _L.fromArray([A2($Html$Events.onClick,
-      userActionsMailboxAddress,
-      Increment)]),
-      _L.fromArray([$Html.text(userInput)]));
-   });
-   var Tick = function (a) {
-      return {ctor: "Tick",_0: a};
-   };
-   var ticks = A2($Signal.map,
-   function (_v9) {
-      return function () {
-         switch (_v9.ctor)
-         {case "_Tuple2":
-            return Tick(_v9._0);}
-         _U.badCase($moduleName,
-         "on line 112, column 37 to 51");
-      }();
-   },
-   $Time.timestamp($Time.every($Time.second)));
-   var actions = function (userActions) {
-      return A2($Signal.merge,
-      ticks,
-      userActions);
-   };
-   var main = function () {
-      var userActionsMailbox = $Signal.mailbox(Tick(0));
-      var modelUpdates = A3($Signal.foldp,
-      update,
-      initialModel,
-      actions(userActionsMailbox.signal));
-      return A2(modelUpdatesToView,
-      userActionsMailbox.address,
-      modelUpdates);
-   }();
-   _elm.Main.values = {_op: _op
-                      ,Tick: Tick
-                      ,Increment: Increment
-                      ,Input: Input
-                      ,NotStarted: NotStarted
-                      ,Running: Running
-                      ,Stopped: Stopped
-                      ,Model: Model
-                      ,main: main
-                      ,modelUpdatesToView: modelUpdatesToView
-                      ,initialModel: initialModel
-                      ,view: view
-                      ,myInput: myInput
-                      ,myButton: myButton
-                      ,update: update
-                      ,updateRunning: updateRunning
-                      ,actions: actions
-                      ,ticks: ticks
-                      ,stringFromMultiplication: stringFromMultiplication
-                      ,resultOfMultiplication: resultOfMultiplication
-                      ,compareInputWithMultiplication: compareInputWithMultiplication
-                      ,handleInput: handleInput
-                      ,generateMultiplication: generateMultiplication};
-   return _elm.Main.values;
-};
 Elm.Maybe = Elm.Maybe || {};
 Elm.Maybe.make = function (_elm) {
    "use strict";
@@ -4511,6 +4244,277 @@ Elm.Maybe.make = function (_elm) {
                        ,Just: Just
                        ,Nothing: Nothing};
    return _elm.Maybe.values;
+};
+Elm.Model = Elm.Model || {};
+Elm.Model.make = function (_elm) {
+   "use strict";
+   _elm.Model = _elm.Model || {};
+   if (_elm.Model.values)
+   return _elm.Model.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "Model",
+   $Basics = Elm.Basics.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Random = Elm.Random.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var Model = F7(function (a,
+   b,
+   c,
+   d,
+   e,
+   f,
+   g) {
+      return {_: {}
+             ,counter: a
+             ,currentSeed: c
+             ,gameState: g
+             ,input: b
+             ,multiplication: d
+             ,score: f
+             ,userInput: e};
+   });
+   var Stopped = {ctor: "Stopped"};
+   var Running = {ctor: "Running"};
+   var NotStarted = {ctor: "NotStarted"};
+   _elm.Model.values = {_op: _op
+                       ,NotStarted: NotStarted
+                       ,Running: Running
+                       ,Stopped: Stopped
+                       ,Model: Model};
+   return _elm.Model.values;
+};
+Elm.Multiplication = Elm.Multiplication || {};
+Elm.Multiplication.make = function (_elm) {
+   "use strict";
+   _elm.Multiplication = _elm.Multiplication || {};
+   if (_elm.Multiplication.values)
+   return _elm.Multiplication.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "Multiplication",
+   $Action = Elm.Action.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Model = Elm.Model.make(_elm),
+   $Random = Elm.Random.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm),
+   $Time = Elm.Time.make(_elm),
+   $UI = Elm.UI.make(_elm);
+   var modelToInputId = function (model) {
+      return "input";
+   };
+   var generateMultiplication = function (seed0) {
+      return function () {
+         var $ = A2($Random.generate,
+         A2($Random.$int,0,10),
+         seed0),
+         first = $._0,
+         seed1 = $._1;
+         var $ = A2($Random.generate,
+         A2($Random.$int,0,10),
+         seed1),
+         second = $._0,
+         seed2 = $._1;
+         return {ctor: "_Tuple2"
+                ,_0: {ctor: "_Tuple2"
+                     ,_0: first
+                     ,_1: second}
+                ,_1: seed2};
+      }();
+   };
+   var compareInputWithMultiplication = F2(function (multipliction,
+   userInput) {
+      return function () {
+         var _v0 = $String.toInt(userInput);
+         switch (_v0.ctor)
+         {case "Err": return false;
+            case "Ok": return _U.eq(_v0._0,
+              $UI.resultOfMultiplication(multipliction));}
+         _U.badCase($moduleName,
+         "between lines 97 and 101");
+      }();
+   });
+   var handleInput = F2(function (userInput,
+   model) {
+      return function () {
+         var _v3 = A2(compareInputWithMultiplication,
+         model.multiplication,
+         userInput);
+         switch (_v3)
+         {case false:
+            return _U.replace([["userInput"
+                               ,userInput]],
+              model);
+            case true: return function () {
+                 var $ = generateMultiplication(model.currentSeed),
+                 multiplication = $._0,
+                 newSeed = $._1;
+                 return _U.replace([["counter"
+                                    ,model.counter + 1]
+                                   ,["multiplication"
+                                    ,multiplication]
+                                   ,["score",model.score + 1]
+                                   ,["userInput",""]
+                                   ,["currentSeed",newSeed]
+                                   ,["gameState",$Model.Running]],
+                 model);
+              }();}
+         _U.badCase($moduleName,
+         "between lines 105 and 117");
+      }();
+   });
+   var ticks = A2($Signal.map,
+   function (_v4) {
+      return function () {
+         switch (_v4.ctor)
+         {case "_Tuple2":
+            return $Action.Tick(_v4._0);}
+         _U.badCase($moduleName,
+         "on line 93, column 37 to 58");
+      }();
+   },
+   $Time.timestamp($Time.every($Time.second)));
+   var actions = function (userActions) {
+      return A2($Signal.merge,
+      ticks,
+      userActions);
+   };
+   var updateGame = F2(function (action,
+   model) {
+      return function () {
+         switch (action.ctor)
+         {case "Input":
+            return A2(handleInput,
+              action._0,
+              model);
+            case "Tick":
+            return _U.replace([["counter"
+                               ,model.counter - 1]
+                              ,["currentSeed"
+                               ,$Random.initialSeed($Basics.round(action._0))]],
+              model);}
+         _U.badCase($moduleName,
+         "between lines 77 and 83");
+      }();
+   });
+   var updateRunning = F2(function (action,
+   model) {
+      return function () {
+         var _v11 = _U.cmp(model.counter,
+         0) < 1;
+         switch (_v11)
+         {case false:
+            return A2(updateGame,
+              action,
+              model);
+            case true:
+            return _U.replace([["gameState"
+                               ,$Model.Stopped]],
+              model);}
+         _U.badCase($moduleName,
+         "between lines 68 and 72");
+      }();
+   });
+   var updateStopped = F2(function (action,
+   model) {
+      return model;
+   });
+   var updateNotStarted = F2(function (action,
+   model) {
+      return function () {
+         switch (action.ctor)
+         {case "Input":
+            return A2(handleInput,
+              action._0,
+              model);
+            case "Tick":
+            return _U.replace([["currentSeed"
+                               ,$Random.initialSeed($Basics.round(action._0))]],
+              model);}
+         return model;
+      }();
+   });
+   var update = F2(function (action,
+   model) {
+      return function () {
+         var _v15 = model.gameState;
+         switch (_v15.ctor)
+         {case "NotStarted":
+            return A2(updateNotStarted,
+              action,
+              model);
+            case "Running":
+            return A2(updateRunning,
+              action,
+              model);
+            case "Stopped":
+            return A2(updateStopped,
+              action,
+              model);}
+         _U.badCase($moduleName,
+         "between lines 44 and 50");
+      }();
+   });
+   var initialModel = {_: {}
+                      ,counter: 10
+                      ,currentSeed: $Random.initialSeed(0)
+                      ,gameState: $Model.NotStarted
+                      ,input: "We need more time"
+                      ,multiplication: {ctor: "_Tuple2"
+                                       ,_0: 10
+                                       ,_1: 5}
+                      ,score: 0
+                      ,userInput: ""};
+   var modelUpdatesToView = F2(function (userActionsMailboxAddress,
+   modelUpdates) {
+      return A2($Signal.map,
+      $UI.view(userActionsMailboxAddress),
+      modelUpdates);
+   });
+   var userActionsMailbox = $Signal.mailbox($Action.Tick(0));
+   var modelUpdates = A3($Signal.foldp,
+   update,
+   initialModel,
+   actions(userActionsMailbox.signal));
+   var focusElement = Elm.Native.Port.make(_elm).outboundSignal("focusElement",
+   function (v) {
+      return v;
+   },
+   A2($Signal._op["<~"],
+   modelToInputId,
+   modelUpdates));
+   var main = A2(modelUpdatesToView,
+   userActionsMailbox.address,
+   modelUpdates);
+   _elm.Multiplication.values = {_op: _op
+                                ,main: main
+                                ,userActionsMailbox: userActionsMailbox
+                                ,modelUpdates: modelUpdates
+                                ,modelUpdatesToView: modelUpdatesToView
+                                ,initialModel: initialModel
+                                ,update: update
+                                ,updateNotStarted: updateNotStarted
+                                ,updateStopped: updateStopped
+                                ,updateRunning: updateRunning
+                                ,updateGame: updateGame
+                                ,actions: actions
+                                ,ticks: ticks
+                                ,compareInputWithMultiplication: compareInputWithMultiplication
+                                ,handleInput: handleInput
+                                ,generateMultiplication: generateMultiplication
+                                ,modelToInputId: modelToInputId};
+   return _elm.Multiplication.values;
 };
 Elm.Native.Array = {};
 Elm.Native.Array.make = function(localRuntime) {
@@ -13942,6 +13946,162 @@ Elm.Transform2D.make = function (_elm) {
                              ,scaleX: scaleX
                              ,scaleY: scaleY};
    return _elm.Transform2D.values;
+};
+Elm.UI = Elm.UI || {};
+Elm.UI.make = function (_elm) {
+   "use strict";
+   _elm.UI = _elm.UI || {};
+   if (_elm.UI.values)
+   return _elm.UI.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "UI",
+   $Action = Elm.Action.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Model = Elm.Model.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var resultOfMultiplication = function (multiplication) {
+      return $Basics.fst(multiplication) * $Basics.snd(multiplication);
+   };
+   var stringFromMultiplication = function (multiplication) {
+      return A2($Basics._op["++"],
+      $Basics.toString($Basics.fst(multiplication)),
+      A2($Basics._op["++"],
+      "x",
+      $Basics.toString($Basics.snd(multiplication))));
+   };
+   var timer = function (timeLeft) {
+      return A2($Html.div,
+      _L.fromArray([]),
+      _L.fromArray([$Html.text(A2($Basics._op["++"],
+      "Pozostały czas: ",
+      $Basics.toString(timeLeft)))]));
+   };
+   var timeBar = function (timeLeft) {
+      return A2($Html.div,
+      _L.fromArray([$Html$Attributes.style(_L.fromArray([{ctor: "_Tuple2"
+                                                         ,_0: "background-color"
+                                                         ,_1: "red"}
+                                                        ,{ctor: "_Tuple2"
+                                                         ,_0: "width"
+                                                         ,_1: A2($Basics._op["++"],
+                                                         $Basics.toString(2 * timeLeft),
+                                                         "%")}
+                                                        ,{ctor: "_Tuple2"
+                                                         ,_0: "height"
+                                                         ,_1: "15px"}]))]),
+      _L.fromArray([]));
+   };
+   var myInput = F2(function (userActionsMailboxAddress,
+   userInput) {
+      return A2($Html.input,
+      _L.fromArray([A3($Html$Events.on,
+                   "input",
+                   $Html$Events.targetValue,
+                   function (input) {
+                      return A2($Signal.message,
+                      userActionsMailboxAddress,
+                      $Action.Input(input));
+                   })
+                   ,$Html$Attributes.type$("number")
+                   ,$Html$Attributes.value(userInput)
+                   ,$Html$Attributes.autofocus(true)
+                   ,$Html$Attributes.id("input")]),
+      _L.fromArray([]));
+   });
+   var viewStopped = F2(function (userActionsMailboxAddress,
+   model) {
+      return A2($Html.div,
+      _L.fromArray([]),
+      _L.fromArray([A2($Html.div,
+                   _L.fromArray([]),
+                   _L.fromArray([$Html.text(A2($Basics._op["++"],
+                   "Twój wynik: ",
+                   $Basics.toString(model.score)))]))
+                   ,A2($Html.div,
+                   _L.fromArray([]),
+                   _L.fromArray([$Html.text(stringFromMultiplication(model.multiplication))]))
+                   ,A2($Html.div,
+                   _L.fromArray([]),
+                   _L.fromArray([$Html.text(A2($Basics._op["++"],
+                   "właściwa odpowiedź: ",
+                   $Basics.toString(resultOfMultiplication(model.multiplication))))]))]));
+   });
+   var viewRunning = F2(function (userActionsMailboxAddress,
+   model) {
+      return A2($Html.div,
+      _L.fromArray([]),
+      _L.fromArray([timeBar(model.counter)
+                   ,timer(model.counter)
+                   ,A2($Html.div,
+                   _L.fromArray([]),
+                   _L.fromArray([$Html.text(A2($Basics._op["++"],
+                   "Twój wynik: ",
+                   $Basics.toString(model.score)))]))
+                   ,A2($Html.div,
+                   _L.fromArray([]),
+                   _L.fromArray([$Html.text(stringFromMultiplication(model.multiplication))]))
+                   ,A2($Html.div,
+                   _L.fromArray([]),
+                   _L.fromArray([A2(myInput,
+                   userActionsMailboxAddress,
+                   model.userInput)]))]));
+   });
+   var viewNotStarted = F2(function (userActionsMailboxAddress,
+   model) {
+      return A2($Html.div,
+      _L.fromArray([]),
+      _L.fromArray([$Html.text("Witaj, masz 10 sekund, żeby odpowiedzieć na jak najwięcej pytań z tabliczki mnożenia!")
+                   ,$Html.text("Wpisz wynik mnożenia, aby rozpocząć")
+                   ,A2($Html.div,
+                   _L.fromArray([]),
+                   _L.fromArray([$Html.text(stringFromMultiplication(model.multiplication))]))
+                   ,A2($Html.div,
+                   _L.fromArray([]),
+                   _L.fromArray([A2(myInput,
+                   userActionsMailboxAddress,
+                   model.userInput)]))]));
+   });
+   var view = F2(function (userActionsMailboxAddress,
+   model) {
+      return function () {
+         var _v0 = model.gameState;
+         switch (_v0.ctor)
+         {case "NotStarted":
+            return A2(viewNotStarted,
+              userActionsMailboxAddress,
+              model);
+            case "Running":
+            return A2(viewRunning,
+              userActionsMailboxAddress,
+              model);
+            case "Stopped":
+            return A2(viewStopped,
+              userActionsMailboxAddress,
+              model);}
+         _U.badCase($moduleName,
+         "between lines 14 and 20");
+      }();
+   });
+   _elm.UI.values = {_op: _op
+                    ,view: view
+                    ,viewNotStarted: viewNotStarted
+                    ,viewRunning: viewRunning
+                    ,viewStopped: viewStopped
+                    ,myInput: myInput
+                    ,timeBar: timeBar
+                    ,timer: timer
+                    ,stringFromMultiplication: stringFromMultiplication
+                    ,resultOfMultiplication: resultOfMultiplication};
+   return _elm.UI.values;
 };
 Elm.VirtualDom = Elm.VirtualDom || {};
 Elm.VirtualDom.make = function (_elm) {

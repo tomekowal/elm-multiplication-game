@@ -5,6 +5,15 @@
     <script src="elm.js" type="text/javascript"></script>
   </head>
   <body>
-    <script type="text/javascript">Elm.fullscreen(Elm.Main)</script>
+    <script type="text/javascript">
+      var multiplication = Elm.fullscreen(Elm.Multiplication);
+      var focusElementWithId = function focusElementWithId(id) {
+        var node = document.getElementById(id);
+        node.focus();
+      };
+      multiplication.ports.focusElement.subscribe(function(id) {
+        focusElementWithId(id);
+      });
+    </script>
   </body>
 </html>
