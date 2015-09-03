@@ -15,6 +15,7 @@ Elm.Action.make = function (_elm) {
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
+   var Reset = {ctor: "Reset"};
    var Input = function (a) {
       return {ctor: "Input",_0: a};
    };
@@ -23,7 +24,8 @@ Elm.Action.make = function (_elm) {
    };
    _elm.Action.values = {_op: _op
                         ,Tick: Tick
-                        ,Input: Input};
+                        ,Input: Input
+                        ,Reset: Reset};
    return _elm.Action.values;
 };
 Elm.Array = Elm.Array || {};
@@ -4281,11 +4283,22 @@ Elm.Model.make = function (_elm) {
    var Stopped = {ctor: "Stopped"};
    var Running = {ctor: "Running"};
    var NotStarted = {ctor: "NotStarted"};
+   var initialModel = {_: {}
+                      ,counter: 9
+                      ,currentSeed: $Random.initialSeed(0)
+                      ,gameState: NotStarted
+                      ,input: "We need more time"
+                      ,multiplication: {ctor: "_Tuple2"
+                                       ,_0: 10
+                                       ,_1: 5}
+                      ,score: 0
+                      ,userInput: ""};
    _elm.Model.values = {_op: _op
                        ,NotStarted: NotStarted
                        ,Running: Running
                        ,Stopped: Stopped
-                       ,Model: Model};
+                       ,Model: Model
+                       ,initialModel: initialModel};
    return _elm.Model.values;
 };
 Elm.Multiplication = Elm.Multiplication || {};
@@ -4342,7 +4355,7 @@ Elm.Multiplication.make = function (_elm) {
             case "Ok": return _U.eq(_v0._0,
               $UI.resultOfMultiplication(multipliction));}
          _U.badCase($moduleName,
-         "between lines 97 and 101");
+         "between lines 88 and 92");
       }();
    });
    var handleInput = F2(function (userInput,
@@ -4371,7 +4384,7 @@ Elm.Multiplication.make = function (_elm) {
                  model);
               }();}
          _U.badCase($moduleName,
-         "between lines 105 and 117");
+         "between lines 96 and 108");
       }();
    });
    var ticks = A2($Signal.map,
@@ -4381,7 +4394,7 @@ Elm.Multiplication.make = function (_elm) {
          {case "_Tuple2":
             return $Action.Tick(_v4._0);}
          _U.badCase($moduleName,
-         "on line 93, column 37 to 58");
+         "on line 84, column 37 to 58");
       }();
    },
    $Time.timestamp($Time.every($Time.second)));
@@ -4405,7 +4418,7 @@ Elm.Multiplication.make = function (_elm) {
                                ,$Random.initialSeed($Basics.round(action._0))]],
               model);}
          _U.badCase($moduleName,
-         "between lines 77 and 83");
+         "between lines 70 and 76");
       }();
    });
    var updateRunning = F2(function (action,
@@ -4423,12 +4436,22 @@ Elm.Multiplication.make = function (_elm) {
                                ,$Model.Stopped]],
               model);}
          _U.badCase($moduleName,
-         "between lines 68 and 72");
+         "between lines 62 and 66");
       }();
    });
    var updateStopped = F2(function (action,
    model) {
-      return model;
+      return function () {
+         switch (action.ctor)
+         {case "Reset":
+            return _U.replace([["counter"
+                               ,10]
+                              ,["userInput",""]
+                              ,["score",0]
+                              ,["gameState",$Model.Running]],
+              model);}
+         return model;
+      }();
    });
    var updateNotStarted = F2(function (action,
    model) {
@@ -4448,8 +4471,8 @@ Elm.Multiplication.make = function (_elm) {
    var update = F2(function (action,
    model) {
       return function () {
-         var _v15 = model.gameState;
-         switch (_v15.ctor)
+         var _v16 = model.gameState;
+         switch (_v16.ctor)
          {case "NotStarted":
             return A2(updateNotStarted,
               action,
@@ -4463,19 +4486,9 @@ Elm.Multiplication.make = function (_elm) {
               action,
               model);}
          _U.badCase($moduleName,
-         "between lines 44 and 50");
+         "between lines 31 and 37");
       }();
    });
-   var initialModel = {_: {}
-                      ,counter: 10
-                      ,currentSeed: $Random.initialSeed(0)
-                      ,gameState: $Model.NotStarted
-                      ,input: "We need more time"
-                      ,multiplication: {ctor: "_Tuple2"
-                                       ,_0: 10
-                                       ,_1: 5}
-                      ,score: 0
-                      ,userInput: ""};
    var modelUpdatesToView = F2(function (userActionsMailboxAddress,
    modelUpdates) {
       return A2($Signal.map,
@@ -4485,7 +4498,7 @@ Elm.Multiplication.make = function (_elm) {
    var userActionsMailbox = $Signal.mailbox($Action.Tick(0));
    var modelUpdates = A3($Signal.foldp,
    update,
-   initialModel,
+   $Model.initialModel,
    actions(userActionsMailbox.signal));
    var focusElement = Elm.Native.Port.make(_elm).outboundSignal("focusElement",
    function (v) {
@@ -4502,7 +4515,6 @@ Elm.Multiplication.make = function (_elm) {
                                 ,userActionsMailbox: userActionsMailbox
                                 ,modelUpdates: modelUpdates
                                 ,modelUpdatesToView: modelUpdatesToView
-                                ,initialModel: initialModel
                                 ,update: update
                                 ,updateNotStarted: updateNotStarted
                                 ,updateStopped: updateStopped
@@ -14017,11 +14029,19 @@ Elm.UI.make = function (_elm) {
                    ,$Html$Attributes.id("input")]),
       _L.fromArray([]));
    });
+   var resetButton = function (userActionsMailboxAddress) {
+      return A2($Html.button,
+      _L.fromArray([A2($Html$Events.onClick,
+      userActionsMailboxAddress,
+      $Action.Reset)]),
+      _L.fromArray([$Html.text("Reset")]));
+   };
    var viewStopped = F2(function (userActionsMailboxAddress,
    model) {
       return A2($Html.div,
       _L.fromArray([]),
-      _L.fromArray([A2($Html.div,
+      _L.fromArray([timeBar(model.counter)
+                   ,A2($Html.div,
                    _L.fromArray([]),
                    _L.fromArray([$Html.text(A2($Basics._op["++"],
                    "Twój wynik: ",
@@ -14031,9 +14051,15 @@ Elm.UI.make = function (_elm) {
                    _L.fromArray([$Html.text(stringFromMultiplication(model.multiplication))]))
                    ,A2($Html.div,
                    _L.fromArray([]),
+                   _L.fromArray([A2(myInput,
+                   userActionsMailboxAddress,
+                   model.userInput)]))
+                   ,A2($Html.div,
+                   _L.fromArray([]),
                    _L.fromArray([$Html.text(A2($Basics._op["++"],
                    "właściwa odpowiedź: ",
-                   $Basics.toString(resultOfMultiplication(model.multiplication))))]))]));
+                   $Basics.toString(resultOfMultiplication(model.multiplication))))]))
+                   ,resetButton(userActionsMailboxAddress)]));
    });
    var viewRunning = F2(function (userActionsMailboxAddress,
    model) {
@@ -14059,8 +14085,10 @@ Elm.UI.make = function (_elm) {
    model) {
       return A2($Html.div,
       _L.fromArray([]),
-      _L.fromArray([$Html.text("Witaj, masz 10 sekund, żeby odpowiedzieć na jak najwięcej pytań z tabliczki mnożenia!")
-                   ,$Html.text("Wpisz wynik mnożenia, aby rozpocząć")
+      _L.fromArray([timeBar(model.counter)
+                   ,A2($Html.div,
+                   _L.fromArray([]),
+                   _L.fromArray([$Html.text("Wpisz wynik mnożenia, aby rozpocząć")]))
                    ,A2($Html.div,
                    _L.fromArray([]),
                    _L.fromArray([$Html.text(stringFromMultiplication(model.multiplication))]))
@@ -14096,6 +14124,7 @@ Elm.UI.make = function (_elm) {
                     ,viewNotStarted: viewNotStarted
                     ,viewRunning: viewRunning
                     ,viewStopped: viewStopped
+                    ,resetButton: resetButton
                     ,myInput: myInput
                     ,timeBar: timeBar
                     ,timer: timer
