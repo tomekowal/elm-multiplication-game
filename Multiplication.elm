@@ -50,10 +50,10 @@ updateStopped : Action.Action -> Model.Model -> Model.Model
 updateStopped action model =
   case action of
     Action.Reset ->
-      { model | counter <- 10
+      { model | counter <- 9
               , userInput <- ""
               , score <- 0
-              , gameState <- Model.Running }
+              , gameState <- Model.NotStarted }
     anything ->
       model
 

@@ -23,6 +23,7 @@ viewNotStarted : Signal.Address Action.Action -> Model.Model -> Html
 viewNotStarted userActionsMailboxAddress model =
   div [] [ timeBar model.counter
          , div [] [text "Wpisz wynik mnożenia, aby rozpocząć"]
+         , div [] [text ("Twój wynik: " ++ (toString model.score))]
          , div [] [text (stringFromMultiplication model.multiplication)]
          , div [] [myInput userActionsMailboxAddress model.userInput]]
 
@@ -37,6 +38,7 @@ viewRunning userActionsMailboxAddress model =
 viewStopped : Signal.Address Action.Action -> Model.Model -> Html
 viewStopped userActionsMailboxAddress model =
       div [] [ timeBar model.counter
+             , timer model.counter
              , div [] [text ("Twój wynik: " ++ (toString model.score))]
              , div [] [text (stringFromMultiplication model.multiplication)]
              , div [] [myInput userActionsMailboxAddress model.userInput]
