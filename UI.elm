@@ -19,57 +19,65 @@ view userActionsMailboxAddress model =
     Model.Stopped ->
       viewStopped userActionsMailboxAddress model
 
+center = [style 
+          [("text-align", "center")
+          , ("font-size", "2em")
+          , ("width", "100%")]]
+
 viewNotStarted : Signal.Address Action.Action -> Model.Model -> Html
 viewNotStarted userActionsMailboxAddress model =
   div [] [ timeBar model.counter
-         , div [] [text "Wpisz wynik mnożenia, aby rozpocząć"]
-         , div [] [text ("Twój wynik: " ++ (toString model.score))]
-         , div [] [text (stringFromMultiplication model.multiplication)]
-         , div [] [myInput userActionsMailboxAddress model.userInput]]
+         , div center
+           [text "Wpisz wynik mnożenia, aby rozpocząć"]
+         , div center [text ("Twój wynik: " ++ (toString model.score))]
+         , div center [text (stringFromMultiplication model.multiplication)]
+         , div center [myInput userActionsMailboxAddress model.userInput]]
 
 viewRunning : Signal.Address Action.Action -> Model.Model -> Html
 viewRunning userActionsMailboxAddress model =
   div [] [ timeBar model.counter
          , timer model.counter
-         , div [] [text ("Twój wynik: " ++ (toString model.score))]
-         , div [] [text (stringFromMultiplication model.multiplication)]
-         , div [] [myInput userActionsMailboxAddress model.userInput]]
+         , div center [text ("Twój wynik: " ++ (toString model.score))]
+         , div center [text (stringFromMultiplication model.multiplication)]
+         , div center [myInput userActionsMailboxAddress model.userInput]]
 
 viewStopped : Signal.Address Action.Action -> Model.Model -> Html
 viewStopped userActionsMailboxAddress model =
       div [] [ timeBar model.counter
              , timer model.counter
-             , div [] [text ("Twój wynik: " ++ (toString model.score))]
-             , div [] [text (stringFromMultiplication model.multiplication)]
-             , div [] [myInput userActionsMailboxAddress model.userInput]
-             , div [] [text ("właściwa odpowiedź: " ++ toString (resultOfMultiplication model.multiplication))]
+             , div center [text ("Twój wynik: " ++ (toString model.score))]
+             , div center [text (stringFromMultiplication model.multiplication)]
+             , div center [myInput userActionsMailboxAddress model.userInput]
+             , div center [text ("właściwa odpowiedź: " ++ toString (resultOfMultiplication model.multiplication))]
              , resetButton userActionsMailboxAddress]
 
 resetButton : Signal.Address Action.Action -> Html
 resetButton userActionsMailboxAddress =
-  button [onClick userActionsMailboxAddress Action.Reset] [text "Reset"]
+  button ((onClick userActionsMailboxAddress Action.Reset) :: center) [text "Reset"]
 
 -- address is a mailbox expecting Actions (Signal Action)
 -- currently it does nothing
 myInput : Signal.Address Action.Action -> String -> Html
 myInput userActionsMailboxAddress userInput =
-  input [on "input"
+  input ([on "input"
             targetValue
             (\input -> Signal.message userActionsMailboxAddress (Action.Input input))
         , type' "number"
         , value userInput
         , autofocus True
-        , id "input" ] []
+        , id "input" ] ++ center) []
 
 timeBar: Int -> Html
 timeBar timeLeft =
-  div [style [ ("background-color", "red")
+  div [style [ ("background-color", "blue")
              , ("width", (toString (2*timeLeft)) ++ "%")
-             , ("height", "15px")]] []
+             , ("height", "2em")
+             , ("margin-left", "auto")
+             , ("margin-right", "auto")]] []
 
 timer: Int -> Html
 timer timeLeft =
-  div [] [text ("Pozostały czas: " ++ (toString timeLeft))]
+  div center [text ("Pozostały czas: " ++ (toString timeLeft))]
 
 stringFromMultiplication : Model.Multiplication -> String
 stringFromMultiplication multiplication =
