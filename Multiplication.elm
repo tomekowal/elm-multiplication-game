@@ -11,21 +11,35 @@ import Action
 import UI
 import Model
 
+-- WIRING --
 main : Signal Html
 main =
-  modelUpdatesToView userActionsMailbox.address modelUpdates
+  Signal.map (UI.view userActionsMailbox.address) modelUpdates
 
 userActionsMailbox : Signal.Mailbox Action.Action
 userActionsMailbox = Signal.mailbox (Action.Tick 0)
 
 modelUpdates : Signal Model.Model
 modelUpdates =
-  Signal.foldp update Model.initialModel (actions userActionsMailbox.signal)
+  Signal.foldp update Model.initialModel actions
 
-modelUpdatesToView : Signal.Address Action.Action -> Signal Model.Model -> Signal Html
-modelUpdatesToView userActionsMailboxAddress modelUpdates =
-  Signal.map (UI.view userActionsMailboxAddress) modelUpdates
+actions : Signal Action.Action
+actions =
+  Signal.merge ticks userActionsMailbox.signal
 
+ticks : Signal Action.Action
+ticks =
+  Signal.map (\(timeStamp, tick) -> Action.Tick timeStamp) (timestamp (every second))
+
+modelToInputId : Model.Model -> String
+modelToInputId model =
+  "input"
+
+port focusElement : Signal String
+port focusElement =
+  modelToInputId <~ modelUpdates
+
+-- UPDATES --
 update: Action.Action -> Model.Model -> Model.Model
 update action model =
   case model.gameState of
@@ -75,14 +89,7 @@ updateGame action model =
     Action.Input string ->
       handleInput string model
 
-actions : Signal Action.Action -> Signal Action.Action
-actions userActions =
-  Signal.merge ticks userActions
-
-ticks : Signal Action.Action
-ticks =
-  Signal.map (\(timeStamp, tick) -> Action.Tick timeStamp) (timestamp (every second))
-
+--
 compareInputWithMultiplication : Model.Multiplication -> String -> Bool
 compareInputWithMultiplication multipliction userInput =
   case String.toInt userInput of
@@ -114,11 +121,3 @@ generateMultiplication seed0 =
     (second, seed2) = Random.generate (Random.int 0 10) seed1
   in
     ((first, second), seed2)
-
-port focusElement : Signal String
-port focusElement =
-  modelToInputId <~ modelUpdates
-
-modelToInputId : Model.Model -> String
-modelToInputId model =
-  "input"
