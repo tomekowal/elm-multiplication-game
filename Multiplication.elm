@@ -6,7 +6,7 @@ import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 import Time exposing (..)
 import Random
-import Signal exposing (Signal, (<~))
+import Signal exposing (Signal, map)
 import Action
 import UI
 import Model
@@ -37,7 +37,7 @@ modelToInputId model =
 
 port focusElement : Signal String
 port focusElement =
-  modelToInputId <~ modelUpdates
+  map modelToInputId modelUpdates
 
 -- UPDATES --
 update: Action.Action -> Model.Model -> Model.Model
@@ -56,7 +56,7 @@ updateNotStarted action model =
     Action.Input string ->
       handleInput string model
     Action.Tick timeStamp ->
-      { model | currentSeed <- Random.initialSeed (round timeStamp) }
+      { model | currentSeed = Random.initialSeed (round timeStamp) }
     anything ->
       model
 
@@ -64,10 +64,10 @@ updateStopped : Action.Action -> Model.Model -> Model.Model
 updateStopped action model =
   case action of
     Action.Reset ->
-      { model | counter <- 9
-              , userInput <- ""
-              , score <- 0
-              , gameState <- Model.NotStarted }
+      { model | counter = 9
+              , userInput = ""
+              , score = 0
+              , gameState = Model.NotStarted }
     anything ->
       model
 
@@ -77,17 +77,19 @@ updateRunning action model =
     False ->
       updateGame action model
     True ->
-      { model | gameState <- Model.Stopped }
+      { model | gameState = Model.Stopped }
 
 updateGame : Action.Action -> Model.Model -> Model.Model
 updateGame action model =
   case action of
     Action.Tick timeStamp ->
       { model |
-                counter <- model.counter - 1
-              , currentSeed <- Random.initialSeed (round timeStamp) }
+                counter = model.counter - 1
+              , currentSeed = Random.initialSeed (round timeStamp) }
     Action.Input string ->
       handleInput string model
+    Action.Reset ->
+      model
 
 --
 compareInputWithMultiplication : Model.Multiplication -> String -> Bool
@@ -105,14 +107,14 @@ handleInput userInput model =
       let
         (multiplication, newSeed) = generateMultiplication model.currentSeed
       in
-        { model | counter <- model.counter + 1
-          , multiplication <- multiplication
-          , score <- model.score + 1
-          , userInput <- ""
-          , currentSeed <- newSeed
-          , gameState <- Model.Running }
+        { model | counter = model.counter + 1
+          , multiplication = multiplication
+          , score = model.score + 1
+          , userInput = ""
+          , currentSeed = newSeed
+          , gameState = Model.Running }
     False ->
-      { model | userInput <- userInput }
+      { model | userInput = userInput }
 
 generateMultiplication : Random.Seed -> (Model.Multiplication, Random.Seed)
 generateMultiplication seed0 =
