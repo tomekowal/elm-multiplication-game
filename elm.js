@@ -10669,24 +10669,6 @@ Elm.Html.Events.make = function (_elm) {
                                     ,keyCode: keyCode
                                     ,Options: Options};
 };
-Elm.Action = Elm.Action || {};
-Elm.Action.make = function (_elm) {
-   "use strict";
-   _elm.Action = _elm.Action || {};
-   if (_elm.Action.values) return _elm.Action.values;
-   var _U = Elm.Native.Utils.make(_elm),
-   $Basics = Elm.Basics.make(_elm),
-   $Debug = Elm.Debug.make(_elm),
-   $List = Elm.List.make(_elm),
-   $Maybe = Elm.Maybe.make(_elm),
-   $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
-   var _op = {};
-   var Reset = {ctor: "Reset"};
-   var Input = function (a) {    return {ctor: "Input",_0: a};};
-   var Tick = function (a) {    return {ctor: "Tick",_0: a};};
-   return _elm.Action.values = {_op: _op,Tick: Tick,Input: Input,Reset: Reset};
-};
 Elm.Model = Elm.Model || {};
 Elm.Model.make = function (_elm) {
    "use strict";
@@ -10701,7 +10683,11 @@ Elm.Model.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
-   var Model = F7(function (a,b,c,d,e,f,g) {    return {counter: a,input: b,currentSeed: c,multiplication: d,userInput: e,score: f,gameState: g};});
+   var Model = F8(function (a,b,c,d,e,f,g,h) {
+      return {counter: a,input: b,currentSeed: c,multiplication: d,userInput: e,score: f,gameState: g,language: h};
+   });
+   var English = {ctor: "English"};
+   var Polish = {ctor: "Polish"};
    var Stopped = {ctor: "Stopped"};
    var Running = {ctor: "Running"};
    var NotStarted = {ctor: "NotStarted"};
@@ -10711,8 +10697,70 @@ Elm.Model.make = function (_elm) {
                       ,multiplication: {ctor: "_Tuple2",_0: 10,_1: 5}
                       ,userInput: ""
                       ,score: 0
-                      ,gameState: NotStarted};
-   return _elm.Model.values = {_op: _op,NotStarted: NotStarted,Running: Running,Stopped: Stopped,Model: Model,initialModel: initialModel};
+                      ,gameState: NotStarted
+                      ,language: English};
+   return _elm.Model.values = {_op: _op
+                              ,NotStarted: NotStarted
+                              ,Running: Running
+                              ,Stopped: Stopped
+                              ,Polish: Polish
+                              ,English: English
+                              ,Model: Model
+                              ,initialModel: initialModel};
+};
+Elm.Action = Elm.Action || {};
+Elm.Action.make = function (_elm) {
+   "use strict";
+   _elm.Action = _elm.Action || {};
+   if (_elm.Action.values) return _elm.Action.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Model = Elm.Model.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var ChangeLanguage = function (a) {    return {ctor: "ChangeLanguage",_0: a};};
+   var Reset = {ctor: "Reset"};
+   var Input = function (a) {    return {ctor: "Input",_0: a};};
+   var Tick = function (a) {    return {ctor: "Tick",_0: a};};
+   return _elm.Action.values = {_op: _op,Tick: Tick,Input: Input,Reset: Reset,ChangeLanguage: ChangeLanguage};
+};
+Elm.Locale = Elm.Locale || {};
+Elm.Locale.make = function (_elm) {
+   "use strict";
+   _elm.Locale = _elm.Locale || {};
+   if (_elm.Locale.values) return _elm.Locale.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Model = Elm.Model.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var timeLeft = function (lang) {    var _p0 = lang;if (_p0.ctor === "Polish") {    return "Pozostały czas: ";} else {    return "Time left: ";}};
+   var correctAnswer = function (lang) {
+      var _p1 = lang;
+      if (_p1.ctor === "Polish") {
+            return "Właściwa odpowiedź: ";
+         } else {
+            return "Correct answer: ";
+         }
+   };
+   var score = function (lang) {    var _p2 = lang;if (_p2.ctor === "Polish") {    return "Twój wynik: ";} else {    return "Your score: ";}};
+   var begin = function (lang) {
+      var _p3 = lang;
+      if (_p3.ctor === "Polish") {
+            return "Wpisz wynik mnożenia, aby rozpocząć";
+         } else {
+            return "Type the result of multiplying to begin";
+         }
+   };
+   return _elm.Locale.values = {_op: _op,begin: begin,score: score,correctAnswer: correctAnswer,timeLeft: timeLeft};
 };
 Elm.UI = Elm.UI || {};
 Elm.UI.make = function (_elm) {
@@ -10727,6 +10775,7 @@ Elm.UI.make = function (_elm) {
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $Html$Events = Elm.Html.Events.make(_elm),
    $List = Elm.List.make(_elm),
+   $Locale = Elm.Locale.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Model = Elm.Model.make(_elm),
    $Result = Elm.Result.make(_elm),
@@ -10751,6 +10800,11 @@ Elm.UI.make = function (_elm) {
    var resetButton = function (userActionsMailboxAddress) {
       return A2($Html.button,A2($List._op["::"],A2($Html$Events.onClick,userActionsMailboxAddress,$Action.Reset),center),_U.list([$Html.text("Reset")]));
    };
+   var langButton = F2(function (userActionsMailboxAddress,language) {
+      return A2($Html.button,
+      A2($List._op["::"],A2($Html$Events.onClick,userActionsMailboxAddress,$Action.ChangeLanguage(language)),center),
+      _U.list([$Html.text($Basics.toString(language))]));
+   });
    var myInput = F2(function (userActionsMailboxAddress,userInput) {
       return A2($Html.input,
       A2($Basics._op["++"],
@@ -10771,20 +10825,22 @@ Elm.UI.make = function (_elm) {
       return A2($Html.div,
       _U.list([]),
       _U.list([timeBar(model.counter)
-              ,A2($Html.div,center,_U.list([$Html.text("Wpisz wynik mnożenia, aby rozpocząć")]))
-              ,A2($Html.div,center,_U.list([$Html.text(A2($Basics._op["++"],"Twój wynik: ",$Basics.toString(model.score)))]))
+              ,A2($Html.div,center,_U.list([$Html.text($Locale.begin(model.language))]))
+              ,A2($Html.div,center,_U.list([$Html.text(A2($Basics._op["++"],$Locale.score(model.language),$Basics.toString(model.score)))]))
               ,A2($Html.div,center,_U.list([$Html.text(stringFromMultiplication(model.multiplication))]))
-              ,A2($Html.div,center,_U.list([A2(myInput,userActionsMailboxAddress,model.userInput)]))]));
+              ,A2($Html.div,center,_U.list([A2(myInput,userActionsMailboxAddress,model.userInput)]))
+              ,A2(langButton,userActionsMailboxAddress,$Model.Polish)
+              ,A2(langButton,userActionsMailboxAddress,$Model.English)]));
    });
-   var timer = function (timeLeft) {
-      return A2($Html.div,center,_U.list([$Html.text(A2($Basics._op["++"],"Pozostały czas: ",$Basics.toString(timeLeft)))]));
-   };
+   var timer = F2(function (lang,timeLeft) {
+      return A2($Html.div,center,_U.list([$Html.text(A2($Basics._op["++"],$Locale.timeLeft(lang),$Basics.toString(timeLeft)))]));
+   });
    var viewRunning = F2(function (userActionsMailboxAddress,model) {
       return A2($Html.div,
       _U.list([]),
       _U.list([timeBar(model.counter)
-              ,timer(model.counter)
-              ,A2($Html.div,center,_U.list([$Html.text(A2($Basics._op["++"],"Twój wynik: ",$Basics.toString(model.score)))]))
+              ,A2(timer,model.language,model.counter)
+              ,A2($Html.div,center,_U.list([$Html.text(A2($Basics._op["++"],$Locale.score(model.language),$Basics.toString(model.score)))]))
               ,A2($Html.div,center,_U.list([$Html.text(stringFromMultiplication(model.multiplication))]))
               ,A2($Html.div,center,_U.list([A2(myInput,userActionsMailboxAddress,model.userInput)]))]));
    });
@@ -10792,13 +10848,13 @@ Elm.UI.make = function (_elm) {
       return A2($Html.div,
       _U.list([]),
       _U.list([timeBar(model.counter)
-              ,timer(model.counter)
-              ,A2($Html.div,center,_U.list([$Html.text(A2($Basics._op["++"],"Twój wynik: ",$Basics.toString(model.score)))]))
+              ,A2(timer,model.language,model.counter)
+              ,A2($Html.div,center,_U.list([$Html.text(A2($Basics._op["++"],$Locale.score(model.language),$Basics.toString(model.score)))]))
               ,A2($Html.div,center,_U.list([$Html.text(stringFromMultiplication(model.multiplication))]))
               ,A2($Html.div,center,_U.list([A2(myInput,userActionsMailboxAddress,model.userInput)]))
               ,A2($Html.div,
               center,
-              _U.list([$Html.text(A2($Basics._op["++"],"właściwa odpowiedź: ",$Basics.toString(resultOfMultiplication(model.multiplication))))]))
+              _U.list([$Html.text(A2($Basics._op["++"],$Locale.correctAnswer(model.language),$Basics.toString(resultOfMultiplication(model.multiplication))))]))
               ,resetButton(userActionsMailboxAddress)]));
    });
    var view = F2(function (userActionsMailboxAddress,model) {
@@ -10815,6 +10871,7 @@ Elm.UI.make = function (_elm) {
                            ,viewRunning: viewRunning
                            ,viewStopped: viewStopped
                            ,resetButton: resetButton
+                           ,langButton: langButton
                            ,myInput: myInput
                            ,timeBar: timeBar
                            ,timer: timer
@@ -10898,6 +10955,7 @@ Elm.Multiplication.make = function (_elm) {
       switch (_p8.ctor)
       {case "Input": return A2(handleInput,_p8._0,model);
          case "Tick": return _U.update(model,{currentSeed: $Random.initialSeed($Basics.round(_p8._0))});
+         case "ChangeLanguage": return _U.update(model,{language: _p8._0});
          default: return model;}
    });
    var update = F2(function (action,model) {
