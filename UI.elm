@@ -54,8 +54,7 @@ viewStopped userActionsMailboxAddress model =
              -- I want to preserve input field, because autofocus needs it, otherwise it crashes everything
              , inputDiv userActionsMailboxAddress model
              , div center [text ((Locale.correctAnswer model.language) ++ toString (resultOfMultiplication model.multiplication))]
-             , resetButton userActionsMailboxAddress
-             , div center [text (toString model.gameState)]]
+             , resetButton userActionsMailboxAddress ]
 
 resetButton : Signal.Address Action.Action -> Html
 resetButton userActionsMailboxAddress =
