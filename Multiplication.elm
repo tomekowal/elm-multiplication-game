@@ -57,6 +57,8 @@ updateNotStarted action model =
       handleInput string model
     Action.Tick timeStamp ->
       { model | currentSeed = Random.initialSeed (round timeStamp) }
+    Action.ChangeLanguage language ->
+      { model | language = language }
     anything ->
       model
 
@@ -88,7 +90,7 @@ updateGame action model =
               , currentSeed = Random.initialSeed (round timeStamp) }
     Action.Input string ->
       handleInput string model
-    Action.Reset ->
+    anything ->
       model
 
 --
