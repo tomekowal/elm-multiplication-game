@@ -51,6 +51,7 @@ viewStopped userActionsMailboxAddress model =
              , timer model.language model.counter
              , scoreDiv model
              , multiplicationDiv model
+             -- I want to preserve input field, because autofocus needs it, otherwise it crashes everything
              , inputDiv userActionsMailboxAddress model
              , div center [text ((Locale.correctAnswer model.language) ++ toString (resultOfMultiplication model.multiplication))]
              , resetButton userActionsMailboxAddress
