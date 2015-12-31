@@ -6,6 +6,7 @@ import Html exposing (div, button, input, text, Html)
 import Html.Attributes exposing (..)
 import Action
 import Model
+import Locale
 
 -- all user inputs need to go to mailbox expecting Action
 -- view takes mailbox and model and turns into html
@@ -28,7 +29,7 @@ viewNotStarted : Signal.Address Action.Action -> Model.Model -> Html
 viewNotStarted userActionsMailboxAddress model =
   div [] [ timeBar model.counter
          , div center
-           [text "Wpisz wynik mnożenia, aby rozpocząć"]
+           [text (Locale.begin model.language)]
          , div center [text ("Twój wynik: " ++ (toString model.score))]
          , div center [text (stringFromMultiplication model.multiplication)]
          , div center [myInput userActionsMailboxAddress model.userInput]
