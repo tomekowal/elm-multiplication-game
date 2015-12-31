@@ -30,7 +30,7 @@ viewNotStarted userActionsMailboxAddress model =
   div [] [ timeBar model.counter
          , div center
            [text (Locale.begin model.language)]
-         , div center [text ("Twój wynik: " ++ (toString model.score))]
+         , div center [text ((Locale.score model.language) ++ (toString model.score))]
          , div center [text (stringFromMultiplication model.multiplication)]
          , div center [myInput userActionsMailboxAddress model.userInput]
          , langButton userActionsMailboxAddress Model.Polish
@@ -39,19 +39,19 @@ viewNotStarted userActionsMailboxAddress model =
 viewRunning : Signal.Address Action.Action -> Model.Model -> Html
 viewRunning userActionsMailboxAddress model =
   div [] [ timeBar model.counter
-         , timer model.counter
-         , div center [text ("Twój wynik: " ++ (toString model.score))]
+         , timer model.language model.counter
+         , div center [text ((Locale.score model.language) ++ (toString model.score))]
          , div center [text (stringFromMultiplication model.multiplication)]
          , div center [myInput userActionsMailboxAddress model.userInput]]
 
 viewStopped : Signal.Address Action.Action -> Model.Model -> Html
 viewStopped userActionsMailboxAddress model =
       div [] [ timeBar model.counter
-             , timer model.counter
-             , div center [text ("Twój wynik: " ++ (toString model.score))]
+             , timer model.language model.counter
+             , div center [text (Locale.score model.language ++ (toString model.score))]
              , div center [text (stringFromMultiplication model.multiplication)]
              , div center [myInput userActionsMailboxAddress model.userInput]
-             , div center [text ("właściwa odpowiedź: " ++ toString (resultOfMultiplication model.multiplication))]
+             , div center [text ((Locale.correctAnswer model.language) ++ toString (resultOfMultiplication model.multiplication))]
              , resetButton userActionsMailboxAddress]
 
 resetButton : Signal.Address Action.Action -> Html
@@ -82,9 +82,9 @@ timeBar timeLeft =
              , ("margin-left", "auto")
              , ("margin-right", "auto")]] []
 
-timer: Int -> Html
-timer timeLeft =
-  div center [text ("Pozostały czas: " ++ (toString timeLeft))]
+timer: Model.Language -> Int -> Html
+timer lang timeLeft =
+  div center [text ((Locale.timeLeft lang) ++ (toString timeLeft))]
 
 stringFromMultiplication : Model.Multiplication -> String
 stringFromMultiplication multiplication =
