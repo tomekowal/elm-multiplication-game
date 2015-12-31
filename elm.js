@@ -10781,6 +10781,7 @@ Elm.UI.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
+   var isDisabled = function (model) {    var _p0 = model.gameState;if (_p0.ctor === "Stopped") {    return true;} else {    return false;}};
    var resultOfMultiplication = function (multiplication) {    return $Basics.fst(multiplication) * $Basics.snd(multiplication);};
    var stringFromMultiplication = function (multiplication) {
       return A2($Basics._op["++"],$Basics.toString($Basics.fst(multiplication)),A2($Basics._op["++"],"x",$Basics.toString($Basics.snd(multiplication))));
@@ -10788,7 +10789,7 @@ Elm.UI.make = function (_elm) {
    var timeBar = function (timeLeft) {
       return A2($Html.div,
       _U.list([$Html$Attributes.style(_U.list([{ctor: "_Tuple2",_0: "background-color",_1: "blue"}
-                                              ,{ctor: "_Tuple2",_0: "width",_1: A2($Basics._op["++"],$Basics.toString(2 * timeLeft),"%")}
+                                              ,{ctor: "_Tuple2",_0: "width",_1: A2($Basics._op["++"],$Basics.toString(4 * timeLeft),"%")}
                                               ,{ctor: "_Tuple2",_0: "height",_1: "2em"}
                                               ,{ctor: "_Tuple2",_0: "margin-left",_1: "auto"}
                                               ,{ctor: "_Tuple2",_0: "margin-right",_1: "auto"}]))]),
@@ -10805,7 +10806,7 @@ Elm.UI.make = function (_elm) {
       A2($List._op["::"],A2($Html$Events.onClick,userActionsMailboxAddress,$Action.ChangeLanguage(language)),center),
       _U.list([$Html.text($Basics.toString(language))]));
    });
-   var myInput = F2(function (userActionsMailboxAddress,userInput) {
+   var myInput = F2(function (userActionsMailboxAddress,model) {
       return A2($Html.input,
       A2($Basics._op["++"],
       _U.list([A3($Html$Events.on,
@@ -10815,20 +10816,26 @@ Elm.UI.make = function (_elm) {
                  return A2($Signal.message,userActionsMailboxAddress,$Action.Input(input));
               })
               ,$Html$Attributes.type$("number")
-              ,$Html$Attributes.value(userInput)
+              ,$Html$Attributes.value(model.userInput)
               ,$Html$Attributes.autofocus(true)
+              ,$Html$Attributes.disabled(isDisabled(model))
               ,$Html$Attributes.id("input")]),
       center),
       _U.list([]));
    });
+   var scoreDiv = function (model) {
+      return A2($Html.div,center,_U.list([$Html.text(A2($Basics._op["++"],$Locale.score(model.language),$Basics.toString(model.score)))]));
+   };
+   var multiplicationDiv = function (model) {    return A2($Html.div,center,_U.list([$Html.text(stringFromMultiplication(model.multiplication))]));};
+   var inputDiv = F2(function (userActionsMailboxAddress,model) {    return A2($Html.div,center,_U.list([A2(myInput,userActionsMailboxAddress,model)]));});
    var viewNotStarted = F2(function (userActionsMailboxAddress,model) {
       return A2($Html.div,
       _U.list([]),
       _U.list([timeBar(model.counter)
               ,A2($Html.div,center,_U.list([$Html.text($Locale.begin(model.language))]))
-              ,A2($Html.div,center,_U.list([$Html.text(A2($Basics._op["++"],$Locale.score(model.language),$Basics.toString(model.score)))]))
-              ,A2($Html.div,center,_U.list([$Html.text(stringFromMultiplication(model.multiplication))]))
-              ,A2($Html.div,center,_U.list([A2(myInput,userActionsMailboxAddress,model.userInput)]))
+              ,scoreDiv(model)
+              ,multiplicationDiv(model)
+              ,A2(inputDiv,userActionsMailboxAddress,model)
               ,A2(langButton,userActionsMailboxAddress,$Model.Polish)
               ,A2(langButton,userActionsMailboxAddress,$Model.English)]));
    });
@@ -10840,26 +10847,27 @@ Elm.UI.make = function (_elm) {
       _U.list([]),
       _U.list([timeBar(model.counter)
               ,A2(timer,model.language,model.counter)
-              ,A2($Html.div,center,_U.list([$Html.text(A2($Basics._op["++"],$Locale.score(model.language),$Basics.toString(model.score)))]))
-              ,A2($Html.div,center,_U.list([$Html.text(stringFromMultiplication(model.multiplication))]))
-              ,A2($Html.div,center,_U.list([A2(myInput,userActionsMailboxAddress,model.userInput)]))]));
+              ,scoreDiv(model)
+              ,multiplicationDiv(model)
+              ,A2(inputDiv,userActionsMailboxAddress,model)]));
    });
    var viewStopped = F2(function (userActionsMailboxAddress,model) {
       return A2($Html.div,
       _U.list([]),
       _U.list([timeBar(model.counter)
               ,A2(timer,model.language,model.counter)
-              ,A2($Html.div,center,_U.list([$Html.text(A2($Basics._op["++"],$Locale.score(model.language),$Basics.toString(model.score)))]))
-              ,A2($Html.div,center,_U.list([$Html.text(stringFromMultiplication(model.multiplication))]))
-              ,A2($Html.div,center,_U.list([A2(myInput,userActionsMailboxAddress,model.userInput)]))
+              ,scoreDiv(model)
+              ,multiplicationDiv(model)
+              ,A2(inputDiv,userActionsMailboxAddress,model)
               ,A2($Html.div,
               center,
               _U.list([$Html.text(A2($Basics._op["++"],$Locale.correctAnswer(model.language),$Basics.toString(resultOfMultiplication(model.multiplication))))]))
-              ,resetButton(userActionsMailboxAddress)]));
+              ,resetButton(userActionsMailboxAddress)
+              ,A2($Html.div,center,_U.list([$Html.text($Basics.toString(model.gameState))]))]));
    });
    var view = F2(function (userActionsMailboxAddress,model) {
-      var _p0 = model.gameState;
-      switch (_p0.ctor)
+      var _p1 = model.gameState;
+      switch (_p1.ctor)
       {case "NotStarted": return A2(viewNotStarted,userActionsMailboxAddress,model);
          case "Running": return A2(viewRunning,userActionsMailboxAddress,model);
          default: return A2(viewStopped,userActionsMailboxAddress,model);}
@@ -10873,10 +10881,14 @@ Elm.UI.make = function (_elm) {
                            ,resetButton: resetButton
                            ,langButton: langButton
                            ,myInput: myInput
+                           ,scoreDiv: scoreDiv
+                           ,multiplicationDiv: multiplicationDiv
+                           ,inputDiv: inputDiv
                            ,timeBar: timeBar
                            ,timer: timer
                            ,stringFromMultiplication: stringFromMultiplication
-                           ,resultOfMultiplication: resultOfMultiplication};
+                           ,resultOfMultiplication: resultOfMultiplication
+                           ,isDisabled: isDisabled};
 };
 Elm.Multiplication = Elm.Multiplication || {};
 Elm.Multiplication.make = function (_elm) {
