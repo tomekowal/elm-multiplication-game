@@ -10862,8 +10862,7 @@ Elm.UI.make = function (_elm) {
               ,A2($Html.div,
               center,
               _U.list([$Html.text(A2($Basics._op["++"],$Locale.correctAnswer(model.language),$Basics.toString(resultOfMultiplication(model.multiplication))))]))
-              ,resetButton(userActionsMailboxAddress)
-              ,A2($Html.div,center,_U.list([$Html.text($Basics.toString(model.gameState))]))]));
+              ,resetButton(userActionsMailboxAddress)]));
    });
    var view = F2(function (userActionsMailboxAddress,model) {
       var _p1 = model.gameState;
