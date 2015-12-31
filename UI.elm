@@ -19,7 +19,7 @@ view userActionsMailboxAddress model =
     Model.Stopped ->
       viewStopped userActionsMailboxAddress model
 
-center = [style 
+center = [style
           [("text-align", "center")
           , ("font-size", "2em")
           , ("width", "100%")]]
@@ -31,7 +31,9 @@ viewNotStarted userActionsMailboxAddress model =
            [text "Wpisz wynik mnożenia, aby rozpocząć"]
          , div center [text ("Twój wynik: " ++ (toString model.score))]
          , div center [text (stringFromMultiplication model.multiplication)]
-         , div center [myInput userActionsMailboxAddress model.userInput]]
+         , div center [myInput userActionsMailboxAddress model.userInput]
+         , langButton userActionsMailboxAddress Model.Polish
+         , langButton userActionsMailboxAddress Model.English]
 
 viewRunning : Signal.Address Action.Action -> Model.Model -> Html
 viewRunning userActionsMailboxAddress model =
@@ -54,6 +56,10 @@ viewStopped userActionsMailboxAddress model =
 resetButton : Signal.Address Action.Action -> Html
 resetButton userActionsMailboxAddress =
   button ((onClick userActionsMailboxAddress Action.Reset) :: center) [text "Reset"]
+
+langButton : Signal.Address Action.Action -> Model.Language -> Html
+langButton userActionsMailboxAddress language =
+  button ((onClick userActionsMailboxAddress (Action.ChangeLanguage language)) :: center) [text (toString language)]
 
 -- address is a mailbox expecting Actions (Signal Action)
 -- currently it does nothing
