@@ -10757,7 +10757,7 @@ Elm.Locale.make = function (_elm) {
       if (_p3.ctor === "Polish") {
             return "Wpisz wynik mnożenia, aby rozpocząć";
          } else {
-            return "Type the result of multiplying to begin";
+            return "Type the result of multiplication to begin";
          }
    };
    return _elm.Locale.values = {_op: _op,begin: begin,score: score,correctAnswer: correctAnswer,timeLeft: timeLeft};
