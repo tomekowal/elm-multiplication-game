@@ -43,7 +43,7 @@ viewRunning userActionsMailboxAddress model =
          , timer model.language model.counter
          , scoreDiv model
          , multiplicationDiv model
-         , inputDiv userActionsMailboxAddress model] 
+         , inputDiv userActionsMailboxAddress model]
 
 viewStopped : Signal.Address Action.Action -> Model.Model -> Html
 viewStopped userActionsMailboxAddress model =
@@ -53,7 +53,8 @@ viewStopped userActionsMailboxAddress model =
              , multiplicationDiv model
              , inputDiv userActionsMailboxAddress model
              , div center [text ((Locale.correctAnswer model.language) ++ toString (resultOfMultiplication model.multiplication))]
-             , resetButton userActionsMailboxAddress]
+             , resetButton userActionsMailboxAddress
+             , div center [text (toString model.gameState)]]
 
 resetButton : Signal.Address Action.Action -> Html
 resetButton userActionsMailboxAddress =
@@ -64,15 +65,16 @@ langButton userActionsMailboxAddress language =
   button ((onClick userActionsMailboxAddress (Action.ChangeLanguage language)) :: center) [text (toString language)]
 
 -- address is a mailbox expecting Actions (Signal Action)
-myInput : Signal.Address Action.Action -> String -> Html
-myInput userActionsMailboxAddress userInput =
+myInput : Signal.Address Action.Action -> Model.Model -> Html
+myInput userActionsMailboxAddress model =
   input ([on "input"
-            targetValue
-            (\input -> Signal.message userActionsMailboxAddress (Action.Input input))
-        , type' "number"
-        , value userInput
-        , autofocus True
-        , id "input" ] ++ center) []
+             targetValue
+             (\input -> Signal.message userActionsMailboxAddress (Action.Input input))
+         , type' "number"
+         , value model.userInput
+         , autofocus True
+         , disabled (isDisabled model)
+         , id "input" ] ++ center) []
 
 scoreDiv : Model.Model -> Html
 scoreDiv model =
@@ -84,7 +86,7 @@ multiplicationDiv model =
 
 inputDiv : Signal.Address Action.Action -> Model.Model -> Html
 inputDiv userActionsMailboxAddress model =
-  div center [myInput userActionsMailboxAddress model.userInput]
+  div center [myInput userActionsMailboxAddress model]
 
 timeBar: Int -> Html
 timeBar timeLeft =
@@ -105,3 +107,11 @@ stringFromMultiplication multiplication =
 resultOfMultiplication : Model.Multiplication -> Int
 resultOfMultiplication multiplication =
   (fst multiplication) * (snd multiplication)
+
+isDisabled : Model.Model -> Bool
+isDisabled model =
+  case model.gameState of
+    Model.Stopped ->
+      True
+    anythingElse ->
+      False
