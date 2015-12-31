@@ -7,7 +7,7 @@ begin lang =
     Model.Polish ->
       "Wpisz wynik mnożenia, aby rozpocząć"
     Model.English ->
-      "Type the result of multiplying to begin"
+      "Type the result of multiplication to begin"
 
 score : Model.Language -> String
 score lang =
