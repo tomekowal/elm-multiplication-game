@@ -7,6 +7,7 @@ import Html.Attributes exposing (..)
 import Action
 import Model
 import Locale
+import TimeBar
 
 -- all user inputs need to go to mailbox expecting Action
 -- view takes mailbox and model and turns into html
@@ -28,7 +29,7 @@ center = [style
 
 viewNotStarted : Signal.Address Action.Action -> Model.Model -> Html
 viewNotStarted userActionsMailboxAddress model =
-  div [] [ timeBar model.counter
+  div [] [ TimeBar.view model.counter
          , div center
            [text (Locale.begin model.language)]
          , scoreDiv model
@@ -39,7 +40,7 @@ viewNotStarted userActionsMailboxAddress model =
 
 viewRunning : Signal.Address Action.Action -> Model.Model -> Html
 viewRunning userActionsMailboxAddress model =
-  div [] [ timeBar model.counter
+  div [] [ TimeBar.view model.counter
          , timer model.language model.counter
          , scoreDiv model
          , multiplicationDiv model
@@ -47,7 +48,7 @@ viewRunning userActionsMailboxAddress model =
 
 viewStopped : Signal.Address Action.Action -> Model.Model -> Html
 viewStopped userActionsMailboxAddress model =
-      div [] [ timeBar model.counter
+      div [] [ TimeBar.view model.counter
              , timer model.language model.counter
              , scoreDiv model
              , multiplicationDiv model
@@ -87,14 +88,6 @@ multiplicationDiv model =
 inputDiv : Signal.Address Action.Action -> Model.Model -> Html
 inputDiv userActionsMailboxAddress model =
   div center [myInput userActionsMailboxAddress model]
-
-timeBar: Int -> Html
-timeBar timeLeft =
-  div [style [ ("background-color", "blue")
-             , ("width", (toString (4*timeLeft)) ++ "%")
-             , ("height", "2em")
-             , ("margin-left", "auto")
-             , ("margin-right", "auto")]] []
 
 timer: Model.Language -> Int -> Html
 timer lang timeLeft =
