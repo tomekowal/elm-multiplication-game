@@ -10762,6 +10762,32 @@ Elm.Locale.make = function (_elm) {
    };
    return _elm.Locale.values = {_op: _op,begin: begin,score: score,correctAnswer: correctAnswer,timeLeft: timeLeft};
 };
+Elm.TimeBar = Elm.TimeBar || {};
+Elm.TimeBar.make = function (_elm) {
+   "use strict";
+   _elm.TimeBar = _elm.TimeBar || {};
+   if (_elm.TimeBar.values) return _elm.TimeBar.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var view = function (timeLeft) {
+      return A2($Html.div,
+      _U.list([$Html$Attributes.style(_U.list([{ctor: "_Tuple2",_0: "background-color",_1: "blue"}
+                                              ,{ctor: "_Tuple2",_0: "width",_1: A2($Basics._op["++"],$Basics.toString(4 * timeLeft),"%")}
+                                              ,{ctor: "_Tuple2",_0: "height",_1: "2em"}
+                                              ,{ctor: "_Tuple2",_0: "margin-left",_1: "auto"}
+                                              ,{ctor: "_Tuple2",_0: "margin-right",_1: "auto"}]))]),
+      _U.list([]));
+   };
+   return _elm.TimeBar.values = {_op: _op,view: view};
+};
 Elm.UI = Elm.UI || {};
 Elm.UI.make = function (_elm) {
    "use strict";
@@ -10779,21 +10805,13 @@ Elm.UI.make = function (_elm) {
    $Maybe = Elm.Maybe.make(_elm),
    $Model = Elm.Model.make(_elm),
    $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
+   $Signal = Elm.Signal.make(_elm),
+   $TimeBar = Elm.TimeBar.make(_elm);
    var _op = {};
    var isDisabled = function (model) {    var _p0 = model.gameState;if (_p0.ctor === "Stopped") {    return true;} else {    return false;}};
    var resultOfMultiplication = function (multiplication) {    return $Basics.fst(multiplication) * $Basics.snd(multiplication);};
    var stringFromMultiplication = function (multiplication) {
       return A2($Basics._op["++"],$Basics.toString($Basics.fst(multiplication)),A2($Basics._op["++"],"x",$Basics.toString($Basics.snd(multiplication))));
-   };
-   var timeBar = function (timeLeft) {
-      return A2($Html.div,
-      _U.list([$Html$Attributes.style(_U.list([{ctor: "_Tuple2",_0: "background-color",_1: "blue"}
-                                              ,{ctor: "_Tuple2",_0: "width",_1: A2($Basics._op["++"],$Basics.toString(4 * timeLeft),"%")}
-                                              ,{ctor: "_Tuple2",_0: "height",_1: "2em"}
-                                              ,{ctor: "_Tuple2",_0: "margin-left",_1: "auto"}
-                                              ,{ctor: "_Tuple2",_0: "margin-right",_1: "auto"}]))]),
-      _U.list([]));
    };
    var center = _U.list([$Html$Attributes.style(_U.list([{ctor: "_Tuple2",_0: "text-align",_1: "center"}
                                                         ,{ctor: "_Tuple2",_0: "font-size",_1: "2em"}
@@ -10816,6 +10834,7 @@ Elm.UI.make = function (_elm) {
                  return A2($Signal.message,userActionsMailboxAddress,$Action.Input(input));
               })
               ,$Html$Attributes.type$("number")
+              ,$Html$Attributes.pattern("[0-9]*")
               ,$Html$Attributes.value(model.userInput)
               ,$Html$Attributes.autofocus(true)
               ,$Html$Attributes.disabled(isDisabled(model))
@@ -10831,7 +10850,7 @@ Elm.UI.make = function (_elm) {
    var viewNotStarted = F2(function (userActionsMailboxAddress,model) {
       return A2($Html.div,
       _U.list([]),
-      _U.list([timeBar(model.counter)
+      _U.list([$TimeBar.view(model.counter)
               ,A2($Html.div,center,_U.list([$Html.text($Locale.begin(model.language))]))
               ,scoreDiv(model)
               ,multiplicationDiv(model)
@@ -10845,7 +10864,7 @@ Elm.UI.make = function (_elm) {
    var viewRunning = F2(function (userActionsMailboxAddress,model) {
       return A2($Html.div,
       _U.list([]),
-      _U.list([timeBar(model.counter)
+      _U.list([$TimeBar.view(model.counter)
               ,A2(timer,model.language,model.counter)
               ,scoreDiv(model)
               ,multiplicationDiv(model)
@@ -10854,7 +10873,7 @@ Elm.UI.make = function (_elm) {
    var viewStopped = F2(function (userActionsMailboxAddress,model) {
       return A2($Html.div,
       _U.list([]),
-      _U.list([timeBar(model.counter)
+      _U.list([$TimeBar.view(model.counter)
               ,A2(timer,model.language,model.counter)
               ,scoreDiv(model)
               ,multiplicationDiv(model)
@@ -10883,7 +10902,6 @@ Elm.UI.make = function (_elm) {
                            ,scoreDiv: scoreDiv
                            ,multiplicationDiv: multiplicationDiv
                            ,inputDiv: inputDiv
-                           ,timeBar: timeBar
                            ,timer: timer
                            ,stringFromMultiplication: stringFromMultiplication
                            ,resultOfMultiplication: resultOfMultiplication
