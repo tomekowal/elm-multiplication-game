@@ -72,6 +72,7 @@ myInput userActionsMailboxAddress model =
              targetValue
              (\input -> Signal.message userActionsMailboxAddress (Action.Input input))
          , type' "number"
+         , pattern "[0-9]*"
          , value model.userInput
          , autofocus True
          , disabled (isDisabled model)
